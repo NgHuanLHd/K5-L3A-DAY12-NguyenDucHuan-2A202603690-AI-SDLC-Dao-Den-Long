@@ -1,0 +1,20 @@
+{
+  "description": "TICKET-03 §5: Tỏa Sáng trúng Bóng Mực đang drain: +15 (không phải +5), con đó choáng",
+  "seed": 1,
+  "ticks": 5,
+  "expect": {
+    "end_state": "playing",
+    "end_score": 15,
+    "events": [
+      "pulse"
+    ],
+    "snapshots": [
+      {
+        "tick": 3,
+        "path": "shades.0.state",
+        "equals": "stunned"
+      }
+    ]
+  },
+  "snapshot_every": 1
+}

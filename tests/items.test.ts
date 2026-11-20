@@ -63,7 +63,7 @@ describe("Lanterns", () => {
     ]); // second press: nothing left to carry
     const two = sim({ player: { carried: 6 }, lanterns: [{ ...L1, deposited: 6 }] }, press("interact"), { ticks: 3 });
     expect(events(two, "deposit")[0]!.data).toEqual({ lantern_id: "L1", amount: 4, deposited: 10 });
-    expect(events(two, "lantern_lit")).toEqual([{ type: "event", tick: 1, name: "lantern_lit", data: { lantern_id: "L1" } }]);
+    expect(events(two, "lantern_lit")).toEqual([{ type: "event", tick: 1, name: "lantern_lit", data: { lantern_id: "L1", relight: false } }]);
     expect(lastSnap(two).player.carried).toBe(2); // min(carried, missing)
   });
   it("scores +10 per deposited mote and +100 per lantern", () => {
@@ -122,34 +122,5 @@ describe("Safe zones (6 m)", () => {
   });
 });
 
-describe("Scoring and ending", () => {
-  const allLit = ["L1", "L2", "L3", "L4", "L5"].map((id) => ({ id, lit: true }));
-  it("win bonus = floor(seconds left) × 2 + 50 × flames; ends at once when the last lantern lights", () => {
-    const lit4 = ["L2", "L3", "L4", "L5"].map((id) => ({ id, lit: true }));
-    const lines = sim({ player: { carried: 10, flames: 2 }, lanterns: [{ id: "L1", pos: [0, 0, 1] }, ...lit4], time_left_s: 100 }, press("interact"), { ticks: 60 });
-    expect(events(lines).map((e) => e.name)).toEqual(["night_start", "deposit", "lantern_lit", "game_over"]);
-    expect(events(lines, "game_over")[0]!.data).toEqual({ result: "won", reason: "all_lit" });
-    // 5999 ticks left -> floor(99.98) = 99 s
-    expect(endLine(lines)).toEqual({ type: "end", ticks: 1, state: "won", score: 100 * 10 / 10 + 100 + 99 * 2 + 2 * 50 });
-  });
-  it("all lanterns lit at setup: win checked after the first tick, no points for setup itself", () => {
-    const lines = sim({ lanterns: allLit, time_left_s: 100 }, [], { ticks: 60 });
-    expect(snapAt(lines, 0).score).toBe(0);
-    expect(endLine(lines)).toMatchObject({ ticks: 1, state: "won", score: 99 * 2 + 3 * 50 });
-  });
-  it("no flames always loses, even with every lantern lit", () => {
-    const lines = sim({ lanterns: allLit, player: { flames: 0 } }, [], { ticks: 60 });
-    expect(events(lines, "game_over")[0]!.data).toEqual({ result: "lost", reason: "no_flames" });
-    expect(endLine(lines).state).toBe("lost");
-  });
-  it("all lanterns lit on the very tick time runs out still wins; otherwise it is dawn", () => {
-    const win = sim({ lanterns: allLit, time_left_s: 1 / 60 }, [], { ticks: 5 });
-    expect(endLine(win)).toMatchObject({ ticks: 1, state: "won", score: 0 * 2 + 3 * 50 });
-    const lose = sim({ time_left_s: 1 / 60 }, [], { ticks: 5 });
-    expect(events(lose, "game_over")[0]!.data).toEqual({ result: "lost", reason: "dawn" });
-    expect(endLine(lose)).toMatchObject({ ticks: 1, state: "lost", score: 0 });
-  });
-  it("nights last 300 / 330 / 360 s", () => {
-    for (const [night, s] of [[1, 300], [2, 330], [3, 360]] as const) expect(snapAt(sim({}, [], { night, ticks: 0 }), 0).time_left_s).toBe(s);
-  });
-});
+// The old "Scoring and ending" block (win the moment every lantern is lit, +1 per second left) was removed
+// by TICKET-03 (wins happen at dawn, not early; time bonus removed). Its replacements live in tests/fuel.test.ts.

@@ -1,0 +1,24 @@
+{
+  "description": "TICKET-03 §4: sức chứa = 10 + 2 × lần thắp thành công; với 1 lần thì 12, nhặt được đom đóm thứ 11",
+  "seed": 1,
+  "ticks": 3,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "mote_picked"
+    ],
+    "snapshots": [
+      {
+        "tick": 2,
+        "path": "player.carried",
+        "equals": 11
+      },
+      {
+        "tick": 2,
+        "path": "player.capacity",
+        "equals": 12
+      }
+    ]
+  },
+  "snapshot_every": 1
+}

@@ -1,0 +1,31 @@
+{
+  "description": "TICKET-03 §1: châm dầu. Đèn 50 dầu, mang 10: hao 1/60 trước tương tác nên thiếu 50.02 -> dùng 6 đom đóm, dầu lên 100, +30 điểm",
+  "seed": 1,
+  "ticks": 3,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "refuel"
+    ],
+    "end_score": 30,
+    "snapshots": [
+      {
+        "tick": 1,
+        "path": "lanterns.0.fuel",
+        "equals": 100
+      },
+      {
+        "tick": 1,
+        "path": "player.carried",
+        "equals": 4
+      },
+      {
+        "tick": 3,
+        "path": "lanterns.0.fuel",
+        "equals": 100,
+        "note": "99.97 rounds to 100.0 at one decimal"
+      }
+    ]
+  },
+  "snapshot_every": 1
+}

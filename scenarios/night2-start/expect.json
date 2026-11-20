@@ -1,5 +1,5 @@
 {
-  "description": "--night 2: night_start, snapshot night = 2, 330 giây, 6 đèn, 20 đom đóm",
+  "description": "--night 2: night_start, snapshot night = 2, 270 giây (v1.2), 6 đèn, 20 đom đóm",
   "seed": 1,
   "night": 2,
   "ticks": 20,
@@ -17,7 +17,7 @@
       {
         "tick": 0,
         "path": "time_left_s",
-        "equals": 330
+        "equals": 270
       },
       {
         "tick": 0,

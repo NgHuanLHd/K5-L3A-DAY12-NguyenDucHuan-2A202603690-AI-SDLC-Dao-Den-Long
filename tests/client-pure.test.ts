@@ -21,12 +21,13 @@ describe("settings", () => {
   it("defaults, clamping and corrupt data", () => {
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings("{oops")).toEqual(DEFAULT_SETTINGS);
-    expect(parseSettings(JSON.stringify({ volume: 5, sensitivity: -1 }))).toEqual({ volume: 1, sensitivity: 0.2 });
-    expect(parseSettings(JSON.stringify({ volume: 0.25, sensitivity: 2 }))).toEqual({ volume: 0.25, sensitivity: 2 });
+    expect(parseSettings(JSON.stringify({ volume: 5, sensitivity: -1 }))).toEqual({ volume: 1, sensitivity: 0.2, colorblind: false });
+    expect(parseSettings(JSON.stringify({ volume: 0.25, sensitivity: 2 }))).toEqual({ volume: 0.25, sensitivity: 2, colorblind: false });
+    expect(parseSettings(JSON.stringify({ colorblind: true })).colorblind).toBe(true);
     expect(parseSettings(JSON.stringify({ volume: "loud" }))).toEqual(DEFAULT_SETTINGS);
   });
   it("survives a round trip", () => {
-    const s = { volume: 0.4, sensitivity: 1.5 };
+    const s = { volume: 0.4, sensitivity: 1.5, colorblind: true };
     expect(parseSettings(JSON.stringify(s))).toEqual(s);
   });
 });

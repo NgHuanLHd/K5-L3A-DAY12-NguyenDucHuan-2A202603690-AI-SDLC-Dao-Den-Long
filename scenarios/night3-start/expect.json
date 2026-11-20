@@ -1,5 +1,5 @@
 {
-  "description": "--night 3: night_start, 360 giây, 7 đèn, L1 ở tầng 2 (Y 6); xuất phát (0,0,-30) vì (0,0,0) nằm trong tháp chuông (giả định Q3)",
+  "description": "--night 3: night_start, 300 giây (v1.2), 7 đèn, L1 ở tầng 2 (Y 6); xuất phát (0,0,-30) vì (0,0,0) nằm trong tháp chuông (giả định Q3)",
   "seed": 1,
   "night": 3,
   "ticks": 20,
@@ -17,7 +17,7 @@
       {
         "tick": 0,
         "path": "time_left_s",
-        "equals": 360
+        "equals": 300
       },
       {
         "tick": 0,

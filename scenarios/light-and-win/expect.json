@@ -1,14 +1,16 @@
 {
-  "description": "E nạp 10 đom đóm vào L1 (cách 2.0 m) -> thắp đèn cuối -> thắng tick 1. Điểm: 10x10 + 100 + floor(59.98)=59 x2 + 3 lửa x50 = 100+100+118+150 = 468",
+  "description": "v1.2: không thắng sớm. E nạp 10 đom đóm vào L1 (cách 2.0 m) -> thắp (+100 +5×10 = 150) và game VẪN chạy tới hết 60 tick; thắng/thua chỉ xét lúc bình minh (TICKET-03)",
   "seed": 1,
   "ticks": 60,
   "expect": {
-    "end_state": "won",
-    "end_ticks": 1,
-    "end_score": 468,
+    "end_state": "playing",
+    "end_ticks": 60,
+    "end_score": 150,
     "events": [
       "deposit",
-      "lantern_lit",
+      "lantern_lit"
+    ],
+    "absent_events": [
       "game_over"
     ]
   }

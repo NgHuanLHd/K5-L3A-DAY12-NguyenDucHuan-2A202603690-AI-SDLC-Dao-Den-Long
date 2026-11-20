@@ -1,0 +1,28 @@
+{
+  "description": "TICKET-03 §2: Bóng Mực wander tới đèn dưới 30 dầu, cách ≤ 2 m thì drain (đứng yên, hút 5/s) + đèn tự hao 1/s. 20 -> ~14 sau 1 giây; fuel_drain ghi ở tick 61",
+  "seed": 1,
+  "ticks": 62,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "fuel_drain"
+    ],
+    "absent_events": [
+      "player_hit"
+    ],
+    "snapshots": [
+      {
+        "tick": 5,
+        "path": "shades.0.state",
+        "equals": "drain"
+      },
+      {
+        "tick": 61,
+        "path": "lanterns.0.fuel",
+        "approx": 14,
+        "tol": 0.1
+      }
+    ]
+  },
+  "snapshot_every": 1
+}

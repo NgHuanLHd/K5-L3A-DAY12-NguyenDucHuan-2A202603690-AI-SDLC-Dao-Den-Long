@@ -1,0 +1,14 @@
+{
+  "description": "TICKET-03 §3: Đêm 2 cần ceil(0.6×6) = 4 đèn sáng lúc bình minh -> thắng. Điểm 4×(50+98) + 3×50 = 742",
+  "seed": 1,
+  "night": 2,
+  "ticks": 300,
+  "expect": {
+    "end_state": "won",
+    "end_ticks": 120,
+    "end_score": 742,
+    "events": [
+      "game_over"
+    ]
+  }
+}

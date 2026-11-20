@@ -1,0 +1,12 @@
+{
+  "description": "TICKET-03 §3: hết Ngọn Lửa luôn thua no_flames ngay, kể cả khi đủ đèn sáng",
+  "seed": 1,
+  "ticks": 10,
+  "expect": {
+    "end_state": "lost",
+    "end_ticks": 1,
+    "events": [
+      "game_over"
+    ]
+  }
+}

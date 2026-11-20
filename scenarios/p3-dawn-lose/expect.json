@@ -1,0 +1,13 @@
+{
+  "description": "TICKET-03 §3: bình minh với 2/5 đèn (cần 3) -> thua dawn ở tick 120, không có điểm",
+  "seed": 1,
+  "ticks": 300,
+  "expect": {
+    "end_state": "lost",
+    "end_ticks": 120,
+    "end_score": 0,
+    "events": [
+      "game_over"
+    ]
+  }
+}

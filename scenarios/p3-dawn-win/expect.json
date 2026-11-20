@@ -1,0 +1,13 @@
+{
+  "description": "TICKET-03 §3: thắng lúc bình minh: 3/5 đèn (ceil 0.6×5) còn sáng, lửa 3 -> dawn_survived ở tick 120. Điểm 3×(50+98) + 3×50 = 594",
+  "seed": 1,
+  "ticks": 300,
+  "expect": {
+    "end_state": "won",
+    "end_ticks": 120,
+    "end_score": 594,
+    "events": [
+      "game_over"
+    ]
+  }
+}

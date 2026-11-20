@@ -1,0 +1,30 @@
+{
+  "description": "TICKET-03 §1: thắp lại chỉ cần 5 đom đóm; lantern_lit relight=true; +5×5 + 40 = 65; relit_count = 1",
+  "seed": 1,
+  "ticks": 3,
+  "expect": {
+    "end_state": "playing",
+    "end_score": 65,
+    "events": [
+      "lantern_lit"
+    ],
+    "snapshots": [
+      {
+        "tick": 1,
+        "path": "lanterns.0.lit",
+        "equals": true
+      },
+      {
+        "tick": 1,
+        "path": "lanterns.0.relit_count",
+        "equals": 1
+      },
+      {
+        "tick": 1,
+        "path": "player.capacity",
+        "equals": 12
+      }
+    ]
+  },
+  "snapshot_every": 1
+}

@@ -1,5 +1,5 @@
 {
-  "description": "Tạm dừng: frame tick 5 -> paused từ tick 6; tick vẫn tăng nhưng sim_tick đứng ở 5 và snapshot ghi paused; frame tick 10 -> resumed",
+  "description": "Tạm dừng: frame tick 5 -> paused từ tick 6; tick vẫn tăng nhưng sim_tick đứng ở 5 và snapshot ghi paused; frame tick 10 -> resumed (v1.2: Đêm 1 dài 240 s)",
   "seed": 1,
   "ticks": 30,
   "snapshot_every": 1,
@@ -23,7 +23,7 @@
       {
         "tick": 8,
         "path": "time_left_s",
-        "approx": 299.917,
+        "approx": 239.917,
         "tol": 0.001
       },
       {
