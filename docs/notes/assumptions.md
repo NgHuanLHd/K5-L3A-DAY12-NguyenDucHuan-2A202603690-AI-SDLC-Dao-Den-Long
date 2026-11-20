@@ -2,6 +2,39 @@
 
 Mỗi dòng: giả định, lý do ngắn, phase. Khi ticket làm rõ hoặc đổi, sửa dòng và ghi vào `changes.md`.
 
+> **Phase 2 thay thế phần lớn mục Phase 1 bên dưới** (số tuning, A2, A7, A12–A15…). Phần Phase 1 được giữ nguyên làm lịch sử ở tag `phase-1`; luật hiện hành nằm ở mục "Phase 2" ngay đây và trong `docs/lab/TICKET-02.md`.
+
+## Phase 2 (giả định cho chỗ ticket chưa rõ)
+
+Các số và luật đã được ticket quy định thì không ghi lại ở đây. Chỉ ghi chỗ ticket **không nói**. Mọi mục là giả định của tôi, chưa hỏi trợ giảng; nếu trợ giảng trả lời khác thì lời trợ giảng đúng.
+
+| # | Chỗ chưa rõ | Giả định đang dùng |
+|---|---|---|
+| Q1 | `player.invuln` | Boolean: còn bất tử hay không |
+| Q2 | Thời điểm `night_start` | Dòng ngay sau snapshot tick 0, `tick: 0` |
+| Q3 | Điểm xuất phát Đêm 3 ((0,0,0) nằm trong tháp chuông) | **(0,0,−30)**, tầng 0, quay mặt +Z. Đêm 1 và 2 xuất phát (0,0,0) |
+| Q4 | Trần 30 đom đóm | Tính mọi đom đóm đang có, kể cả `dropped`; Đêm 1 và 2 chỉ có 24 điểm nên không bao giờ quá 24 đom đóm ngẫu nhiên |
+| Q5 | `spawning` kéo dài bao lâu | Đúng tick sinh ra; tick sau thành `chase`/`wander` |
+| Q6 | `wander` | Đi tới điểm ngẫu nhiên cùng tầng trên đảo gần nhất, tốc độ = 0.5 × tốc độ đuổi; đổi điểm mỗi 120 tick |
+| Q7 | Chênh cao khi chạm | \|Y chân Mây − Y tâm Bóng Mực\| ≤ 1.5; tâm bóng = mặt đất + 1.0 |
+| Q8 | Gió Lạc sau `removed` | Vẫn nằm trong mảng `drifters` với `state: removed`, không tính vào tối đa 2 |
+| Q9 | "Điểm sương" của Gió Lạc | Điểm sinh Bóng Mực của Đêm đó; bay ở độ cao mặt đất + 1.5 |
+| Q10 | Lịch gió | Bắt đầu ở `sim_tick` 1800k, kéo dài 300 tick, hướng ngẫu nhiên theo seed (độ, 3 chữ số); mặc định bật ở Đêm 3 |
+| Q11 | Sau lướt | Về vận tốc trước đó: vận tốc phóng nếu đang bay, hoặc tốc độ chạy theo phím |
+| Q12 | Đom đóm rơi ra chỗ không có đất | Thử 8 lần chọn điểm trên vành có đất cùng độ cao; không được thì đặt tại chân Mây |
+| Q13 | Bóng Mực và biển/vách | Không đi vào biển; không leo vách cao hơn chân + 0.3 m; đẩy lùi dừng tại đó |
+| Q14 | Scenario `drifters[]`, `charms[]` | `drifters: [{id?, pos, state?, stolen?, state_ticks_left?}]`; `charms: [{id, pos?, available?, respawn_ticks?}]`; `motes[]` nhận cả `[x,y,z]` và `{pos, kind?, ttl_s?}` |
+| Q15 | Điểm khi thua | Không thưởng cuối trận; tổng điểm game chỉ cộng các Đêm thắng |
+| Q16 | Scenario `shades[]` không ghi `state` | `wander`, rồi tick đầu tự thành `chase` nếu trong 12 m |
+| Q17 | `state_ticks_left = N` | Còn đúng N tick: vẫn `stunned` ở snapshot tick N−1 và hết ở tick N |
+| Q18 | Hạ cánh từ bục nhảy | Giữ vận tốc ngang, giảm dần về 0 trong ≤ 0.1 s (không dừng đột ngột) |
+| Q19 | Phím di chuyển khi Mây vừa rơi chờ hồi sinh | Bỏ qua mọi hành động trong 60 tick chờ |
+| Q20 | Tỏa Sáng không trúng ai | Vẫn tốn 3 đom đóm, phát `pulse` với `stunned_ids: []` |
+| Q21 | `pulse` event và Gió Lạc | `stunned_ids` chỉ gồm Bóng Mực; Gió Lạc bị đẩy xa/thả đồ qua `drifter_*` |
+| Q22 | Thời điểm hiệu lực bùa | Còn 600 tick tính cả tick nhặt; `charm_s` giảm từ tick kế tiếp |
+
+Các giả định Q1–Q3 và Q10 ảnh hưởng nhiều nhất tới test ẩn.
+
 ## Phase 1
 
 ### Số tuning (khớp `game.contract.json`)

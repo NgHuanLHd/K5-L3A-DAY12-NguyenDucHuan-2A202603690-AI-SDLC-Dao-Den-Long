@@ -23,4 +23,8 @@ Create `scenarios/<name>/` with `scenario.json` (Test Contract D), `inputs.json`
   "expect": { "end_state": "playing", "events": ["mote_picked"], "absent_events": ["player_hit"] } }
 ```
 Set `"expect": { "exit_code": 2 }` for invalid-input scenarios.
-Derive expected values from the spec and `game.contract.json`, not from running the code.
+Add `"night": 2` (or 3) at the top level to run another night (default 1).
+Derive expected values from the spec (`docs/lab/TICKET-02.md` standard numbers) and `game.contract.json`, not from running the code.
+
+## Phase 2 coverage rule
+Every new feature in TICKET-02 Part 3 and every new mechanic (dash, fall, pads, ramps, wind, charm, drifters, pause, safe-zone eviction, nights 2/3) needs at least one scenario here. Track them against AC-2xx in `docs/notes/phase-2-plan.md`.
