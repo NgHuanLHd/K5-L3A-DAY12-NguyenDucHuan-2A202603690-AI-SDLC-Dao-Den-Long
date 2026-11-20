@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-web/
+out/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
+
+# local only: course handouts, personal guide, preview config
+docs/lab/*
+!docs/lab/PRD-0.md
+.claude/launch.json

@@ -1,0 +1,28 @@
+{
+  "name": "dao-den-long",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Đảo Đèn Lồng - Day 12 AI SDLC lab (3D game + headless Test Contract)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json && vite build",
+    "start": "vite preview --port 5173 --strictPort",
+    "dev": "vite",
+    "headless": "node dist/headless/cli.js",
+    "test": "vitest run",
+    "proof": "node scripts/proof.mjs"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}

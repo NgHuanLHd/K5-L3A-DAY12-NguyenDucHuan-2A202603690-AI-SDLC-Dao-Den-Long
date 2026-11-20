@@ -1,0 +1,11 @@
+{
+  "description": "Setup smoke: walk +Z for 1 s at player_speed, then stand still. Proves CLI, tick model, snapshot/end format.",
+  "seed": 1,
+  "ticks": 120,
+  "expect": {
+    "end_state": "playing",
+    "end_ticks": 120,
+    "events": [],
+    "player_pos_at_end": [0, 0, 5]
+  }
+}
