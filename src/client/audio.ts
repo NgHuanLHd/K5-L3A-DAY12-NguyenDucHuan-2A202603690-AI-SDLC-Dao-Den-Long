@@ -1,6 +1,6 @@
 // Procedural audio (WebAudio): night music + effects. No audio files, so nothing to license (see CREDITS.md).
 export type Sfx =
-  | "pick" | "light" | "pulse" | "hit" | "jump" | "dash" | "win" | "lose" | "spawn" | "countdown" | "ui" | "charm" | "steal" | "wind";
+  | "out" | "pick" | "light" | "pulse" | "hit" | "jump" | "dash" | "win" | "lose" | "spawn" | "countdown" | "ui" | "charm" | "steal" | "wind";
 
 export class GameAudio {
   private ctx: AudioContext | null = null;
@@ -70,6 +70,8 @@ export class GameAudio {
   play(name: Sfx): void {
     switch (name) {
       case "pick": this.tone(880, 0.12, "sine", 0.15, 1320); break;
+      // lantern went out: falling tone
+      case "out": this.tone(440, 0.6, "triangle", 0.16, 110); break;
       case "light": [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.5, "triangle", 0.14, undefined, i * 0.07)); break;
       case "pulse": this.tone(300, 0.5, "sine", 0.22, 1200); this.noise(0.4, 0.08, 2000); break;
       case "hit": this.tone(140, 0.3, "sawtooth", 0.25, 50); this.noise(0.2, 0.15, 400); break;

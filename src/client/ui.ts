@@ -1,7 +1,7 @@
 // DOM user interface: menu, night intro, pause, settings, results, dawn and the in-game HUD.
 import { TICK_RATE, WIND_EVERY, WIND_WARN_TICKS } from "../core/constants.js";
 import type { NightDef } from "../core/maps.js";
-import { distXZ, timeLeftSeconds, type World } from "../core/world.js";
+import { distXZ, timeLeftSeconds, winNeed, type World } from "../core/world.js";
 import type { GameScene } from "./scene.js";
 import type { Settings } from "./settings.js";
 
@@ -30,6 +30,8 @@ export interface ResultData {
   flames: number;
   timeLeft: number;
   isLast: boolean;
+  /** Lanterns needed at dawn (ceil(win_ratio × total)). */
+  need: number;
 }
 
 const FLAME_SVG = (on: boolean) =>
@@ -40,6 +42,9 @@ const LANTERN_SVG = (lit: boolean) =>
   <path d="M28 4v6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><rect x="17" y="10" width="22" height="5" rx="2.5" fill="currentColor"/>
   <path d="M15 18h26c2 9 2 17 0 24H15c-2-7-2-15 0-24z" fill="${lit ? "rgba(255,179,71,0.35)" : "rgba(60,40,90,0.5)"}" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
   <rect x="17" y="42" width="22" height="5" rx="2.5" fill="currentColor"/>${lit ? '<path d="M28 21c4 5 5 8 3 11-1 2-5 2-6 0-2-3-1-6 3-11z" fill="#FFF6C2"/>' : ""}</svg>`;
+
+/** Carrying capacity shown on the HUD (ticket-03: 10 + 2 × successful lights, max 20). */
+const capacityNow = (w: World) => Math.min(w.tuning.capacity_max, w.tuning.carry_capacity + 2 * w.player.successfulLights);
 
 const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -54,20 +59,20 @@ export class Ui {
     const root = this.$("ui");
     root.innerHTML = `
     <div id="hud" class="hidden">
-      <div id="hudFlames" aria-label="Ngọn Lửa"></div>
-      <div id="hudTime">05:00</div>
-      <div id="hudRight"><span id="hudLanterns">0/5</span><span id="hudScore">0</span></div>
+      <div class="panel p-flames"><span class="plabel">Ngọn lửa</span><div id="hudFlames"></div></div>
+      <div class="panel p-time"><span class="plabel">Bình minh sau</span><div id="hudTime">05:00</div><div id="hudGoal"></div></div>
+      <div class="panel p-lanterns"><span class="plabel">Đèn lồng</span><div class="lrow"><b id="hudLanterns">0/5</b></div><div id="hudScore">0</div></div>
       <div id="hudCharm" class="hidden"></div>
       <div id="hudMotes" aria-label="Đom đóm"></div>
       <div id="hudCd">
         <div class="cd" id="cdDash"><b>Lướt</b><span>Shift</span></div>
-        <div class="cd" id="cdPulse"><b>Tỏa Sáng</b><span>F</span></div>
+        <div class="cd" id="cdPulse"><b>Tỏa sáng</b><span>F</span></div>
       </div>
       <div id="hudPrompt" class="hidden"></div>
       <div id="hudArrow" class="hidden"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 2l8 18-8-5-8 5z" fill="#F2C14E" stroke="#0E1430" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
       <div id="hudBanner" class="hidden"></div>
       <div id="hudFps" class="hidden"></div>
-      <div id="hudHelp">WASD đi · Space nhảy · Shift lướt · E nạp đèn · F tỏa sáng · ←/→ hoặc kéo chuột xoay camera · Esc tạm dừng</div>
+      <div id="hudHelp"><b>WASD</b> đi · <b>Space</b> nhảy · <b>Shift</b> lướt · <b>E</b> nạp đèn · <b>F</b> tỏa sáng · <b>Esc/P</b> tạm dừng<br><b>←/→</b> hoặc kéo chuột xoay camera</div>
     </div>
     <div id="screens">
       <section class="screen" id="menu"><div class="card">
@@ -90,7 +95,8 @@ export class Ui {
         <h1>Cài đặt</h1>
         <label class="row"><span>Âm lượng <b id="volVal"></b></span><input id="volume" type="range" min="0" max="100" step="1"></label>
         <label class="row"><span>Độ nhạy chuột <b id="senVal"></b></span><input id="sens" type="range" min="20" max="300" step="5"></label>
-        <p class="hint">Cài đặt được lưu lại cho lần chơi sau.</p>
+        <label class="row"><span>Bảng màu dễ phân biệt</span> <input id="cbMode" type="checkbox"></label>
+        <p class="hint">Viền Bóng Mực đổi sang xanh, cảnh báo sang trắng có dấu ⚠. Cài đặt được lưu lại cho lần chơi sau.</p>
         <div class="btns"><button class="primary" data-act="back">Xong</button></div>
       </div></section>
       <section class="screen" id="result"><div class="card">
@@ -130,13 +136,17 @@ export class Ui {
     const vol = this.$("volume") as HTMLInputElement;
     const sen = this.$("sens") as HTMLInputElement;
     const sync = () => {
-      this.settings = { volume: Number(vol.value) / 100, sensitivity: Number(sen.value) / 100 };
+      this.settings = { volume: Number(vol.value) / 100, sensitivity: Number(sen.value) / 100, colorblind: (this.$("cbMode") as HTMLInputElement).checked };
       this.$("volVal").textContent = `${vol.value}%`;
       this.$("senVal").textContent = `×${(Number(sen.value) / 100).toFixed(2)}`;
       this.h.settingsChanged(this.settings);
     };
     vol.addEventListener("input", sync);
     sen.addEventListener("input", sync);
+    (this.$("cbMode") as HTMLInputElement).addEventListener("change", () => {
+      sync();
+      document.body.classList.toggle("cb", this.settings.colorblind);
+    });
     this.applySettings(settings);
   }
 
@@ -146,6 +156,8 @@ export class Ui {
     (this.$("sens") as HTMLInputElement).value = String(Math.round(s.sensitivity * 100));
     this.$("volVal").textContent = `${Math.round(s.volume * 100)}%`;
     this.$("senVal").textContent = `×${s.sensitivity.toFixed(2)}`;
+    (this.$("cbMode") as HTMLInputElement).checked = s.colorblind;
+    document.body.classList.toggle("cb", s.colorblind);
   }
 
   get screen(): ScreenName | null {
@@ -175,10 +187,10 @@ export class Ui {
 
   setResult(r: ResultData): void {
     this.$("resIcon").innerHTML = LANTERN_SVG(r.won);
-    this.$("resTitle").textContent = r.won ? "Đảo sáng trở lại!" : r.reason === "dawn" ? "Trời đã sáng" : "Mây hết lửa";
+    this.$("resTitle").textContent = r.won ? "Qua một đêm!" : r.reason === "dawn" ? "Trời đã sáng" : "Mây hết lửa";
     this.$("resReason").textContent = r.won
-      ? `Mây đã thắp lại mọi Đèn Lồng của ${r.night === 1 ? "Đảo Bến" : r.night === 2 ? "Đảo Cau" : "Đảo Chuông"}.`
-      : r.reason === "dawn" ? "Đêm đã hết mà chưa thắp kịp hết các đèn." : "Bóng Mực đã dập tắt ngọn lửa cuối cùng của Mây.";
+      ? `Mây giữ đảo sáng tới bình minh với ${r.lit}/${r.lanterns} đèn.`
+      : r.reason === "dawn" ? `Bình minh đến khi chỉ còn ${r.lit}/${r.lanterns} đèn sáng, cần ${r.need}.` : "Bóng Mực đã dập tắt ngọn lửa cuối cùng của Mây.";
     this.$("resScore").textContent = String(r.won ? r.score : 0);
     this.$("resLit").textContent = `${r.lit}/${r.lanterns}`;
     this.$("resFlames").textContent = String(r.flames);
@@ -214,8 +226,19 @@ export class Ui {
     timeEl.classList.toggle("blink", urgent && Math.floor(nowMs / 400) % 2 === 0);
 
     const lit = w.lanterns.filter((l) => l.lit).length;
-    this.$("hudLanterns").textContent = `Đèn ${lit}/${w.lanterns.length}`;
-    this.$("hudScore").textContent = `Điểm ${w.score}`;
+    const motes = this.$("hudMotes");
+    const cap = capacityNow(w);
+    if (motes.children.length !== cap) {
+      motes.innerHTML = "";
+      for (let i = 0; i < cap; i++) motes.appendChild(document.createElement("i"));
+    }
+    this.$("hudMotes").setAttribute("data-count", `${p.carried}/${cap}`);
+    this.$("hudLanterns").textContent = `${lit}/${w.lanterns.length}`;
+    const need = winNeed(w);
+    const goal = this.$("hudGoal");
+    goal.textContent = `Giữ ≥ ${need}/${w.lanterns.length} đèn sáng tới bình minh · hiện ${lit}`;
+    goal.classList.toggle("short", lit < need);
+    this.$("hudScore").textContent = `${w.score}`;
 
     const slots = this.$("hudMotes").children;
     for (let i = 0; i < slots.length; i++) slots[i]!.classList.toggle("on", i < p.carried);

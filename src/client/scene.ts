@@ -11,7 +11,7 @@ const std = (color: number, o: THREE.MeshStandardMaterialParameters = {}) => new
 const basic = (color: number, o: THREE.MeshBasicMaterialParameters = {}) => new THREE.MeshBasicMaterial({ color, ...o });
 const rad = (d: number) => (d * Math.PI) / 180;
 
-interface LanternView { post: THREE.Mesh; lamp: THREE.Mesh; core: THREE.Mesh; light: THREE.PointLight; zone: THREE.Mesh }
+interface LanternView { post: THREE.Mesh; lamp: THREE.Mesh; core: THREE.Mesh; light: THREE.PointLight; zone: THREE.Mesh; tear: THREE.Mesh; bar: THREE.Mesh; barMat: THREE.MeshBasicMaterial }
 interface ShadeView { group: THREE.Group; body: THREE.Mesh; rim: THREE.Mesh }
 interface DrifterView { mesh: THREE.Mesh; base: Float32Array; last: THREE.Vector3 }
 
@@ -45,6 +45,9 @@ export class GameScene {
   private readonly bodyStunMat = std(C.shadeStunned, { transparent: true, opacity: 0.8 });
   private readonly rimMat = basic(C.shadeRim, { side: THREE.BackSide, transparent: true, opacity: 0.7 });
   private readonly rimStunMat = basic(C.shadeStunned, { side: THREE.BackSide, transparent: true, opacity: 0.4 });
+  /** Colour-blind palette (ticket-03): rim and eyes #00B3FF instead of violet and white. */
+  private readonly eyeMat = basic(0xffffff);
+  private colorblind = false;
   camYaw = 0;
   private width = 1;
   private height = 1;
@@ -79,6 +82,14 @@ export class GameScene {
       this.leaves.push(leaf);
       this.scene.add(leaf);
     }
+  }
+
+  /** Colour-blind palette switch: Bóng Mực rim and eyes change colour; UI warnings are handled in CSS. */
+  setColorBlind(on: boolean): void {
+    this.colorblind = on;
+    this.eyeMat.color.set(on ? 0x00b3ff : 0xffffff);
+    this.rimMat.color.set(on ? 0x00b3ff : C.shadeRim);
+    this.rimStunMat.color.set(on ? 0x00b3ff : C.shadeStunned);
   }
 
   resize(w: number, h: number): void {
@@ -182,8 +193,15 @@ export class GameScene {
       const zone = new THREE.Mesh(new THREE.RingGeometry(5.9, 6, 72), basic(C.lampOn, { transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
       zone.rotation.x = -Math.PI / 2;
       zone.position.set(l.pos[0], l.pos[1] + 0.04, l.pos[2]);
-      g.add(post, lamp, core, light, zone);
-      this.lanterns.push({ post, lamp, core, light, zone });
+      // unlit lantern: a torn paper strip on the face (ticket-03 colour-free cue)
+      const tear = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.05, 0.03), basic(0x1a1024));
+      tear.position.set(l.pos[0] + 0.1, l.pos[1] + 3.3, l.pos[2] + 0.42);
+      tear.rotation.z = 0.35;
+      const barMat = basic(C.lampOn);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 0.14), barMat);
+      bar.position.set(l.pos[0], l.pos[1] + 4.6, l.pos[2]);
+      g.add(post, lamp, core, light, zone, tear, bar);
+      this.lanterns.push({ post, lamp, core, light, zone, tear, bar, barMat });
     }
     // launch pads
     for (const p of def.pads) {
@@ -231,6 +249,15 @@ export class GameScene {
       (v.core.material as THREE.MeshBasicMaterial).opacity = l.lit ? 0.95 : fill * 0.5;
       v.light.intensity = l.lit ? 7 : fill * 2;
       (v.zone.material as THREE.MeshBasicMaterial).opacity = l.lit ? 0.4 : 0;
+      // unlit lanterns sag 20% and show the torn strip; lit ones show the fuel bar (1 Hz blink under 30)
+      v.lamp.scale.y = l.lit ? 1 : 0.8;
+      v.tear.visible = !l.lit;
+      v.bar.visible = l.lit;
+      const fuel = l.fuelU / 60;
+      v.bar.scale.x = Math.max(0.02, fuel / 100);
+      v.bar.position.x = l.pos[0] - (1.4 * (1 - Math.max(0.02, fuel / 100))) / 2;
+      const lowBlink = l.lit && fuel < 30 && Math.floor(nowMs / 500) % 2 === 0;
+      v.barMat.color.set(lowBlink ? 0x3a2a14 : C.lampOn);
     });
     this.ambient.intensity = ambientIntensity(lit, w.lanterns.length);
     this.fog.density = 0.016 - 0.007 * (lit / Math.max(1, w.lanterns.length));
@@ -259,7 +286,7 @@ export class GameScene {
         const group = new THREE.Group();
         const body = new THREE.Mesh(this.shadeGeo, this.bodyMat);
         const rim = new THREE.Mesh(this.rimGeo, this.rimMat);
-        const eyeMat = basic(0xffffff);
+        const eyeMat = this.eyeMat;
         for (const x of [-0.28, 0.28]) {
           const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), eyeMat);
           eye.position.set(x, 0.15, 0.7);

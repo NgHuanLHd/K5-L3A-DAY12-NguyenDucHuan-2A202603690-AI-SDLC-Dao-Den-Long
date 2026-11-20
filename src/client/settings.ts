@@ -4,8 +4,10 @@ export interface Settings {
   volume: number;
   /** 0.2..3 mouse look sensitivity multiplier. */
   sensitivity: number;
+  /** Ticket-03 colour-blind palette: shade rim and eyes #00B3FF, warnings white with a ⚠ mark. */
+  colorblind: boolean;
 }
-export const DEFAULT_SETTINGS: Settings = { volume: 0.7, sensitivity: 1 };
+export const DEFAULT_SETTINGS: Settings = { volume: 0.7, sensitivity: 1, colorblind: false };
 const KEY = "dao-den-long.settings";
 
 const clamp = (v: unknown, lo: number, hi: number, fallback: number): number =>
@@ -23,6 +25,7 @@ export function parseSettings(raw: string | null): Settings {
   return {
     volume: clamp(j.volume, 0, 1, DEFAULT_SETTINGS.volume),
     sensitivity: clamp(j.sensitivity, 0.2, 3, DEFAULT_SETTINGS.sensitivity),
+    colorblind: typeof j.colorblind === "boolean" ? j.colorblind : DEFAULT_SETTINGS.colorblind,
   };
 }
 

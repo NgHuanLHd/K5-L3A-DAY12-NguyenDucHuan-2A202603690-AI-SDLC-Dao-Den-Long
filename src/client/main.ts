@@ -5,7 +5,7 @@ import contractJson from "../../game.contract.json";
 import { DT, WIND_EVERY, WIND_WARN_TICKS } from "../core/constants.js";
 import { getNight } from "../core/maps.js";
 import type { Contract, GameEvent, InputState } from "../core/types.js";
-import { createWorld, DEFAULT_INPUT, step, timeLeftSeconds, type World } from "../core/world.js";
+import { createWorld, DEFAULT_INPUT, step, timeLeftSeconds, winNeed, type World } from "../core/world.js";
 import { GameAudio, type Sfx } from "./audio.js";
 import { GameScene } from "./scene.js";
 import { loadSettings, saveSettings, type Settings } from "./settings.js";
@@ -18,6 +18,7 @@ let settings: Settings = loadSettings();
 const audio = new GameAudio();
 audio.setVolume(settings.volume);
 const scene = new GameScene(document.getElementById("stage")!);
+scene.setColorBlind(settings.colorblind);
 
 let phase: Phase = "menu";
 let night = 1;
@@ -67,7 +68,7 @@ const ui = new Ui(
       else { ui.setDawn(total, wins); phase = "menu"; ui.showScreen("dawn"); audio.stopMusic(); }
     },
     restartAll() { wins.length = 0; total = 0; showIntro(1); },
-    settingsChanged(s) { settings = s; audio.setVolume(s.volume); saveSettings(s); },
+    settingsChanged(s) { settings = s; audio.setVolume(s.volume); saveSettings(s); scene.setColorBlind(s.colorblind); },
     click() { audio.play("ui"); },
   },
   settings,
@@ -116,7 +117,7 @@ function readInput(): void {
 // ------------------------------------------------------------------ events -> audio / effects
 function handleEvents(evs: GameEvent[]): void {
   const sfx: Partial<Record<GameEvent["name"], Sfx>> = {
-    mote_picked: "pick", deposit: "pick", lantern_lit: "light", player_hit: "hit", dash: "dash", charm_picked: "charm",
+    mote_picked: "pick", deposit: "pick", refuel: "pick", lantern_lit: "light", lantern_out: "out", player_hit: "hit", dash: "dash", charm_picked: "charm",
     drifter_steal: "steal", shade_spawned: "spawn",
   };
   for (const e of evs) {
@@ -145,6 +146,7 @@ function afterStep(): void {
     ui.setResult({
       won, reason: world.endReason ?? "", night, score: world.score, total, lit: world.lanterns.filter((l) => l.lit).length,
       lanterns: world.lanterns.length, flames: world.player.flames, timeLeft: timeLeftSeconds(world), isLast: night === 3,
+      need: winNeed(world),
     });
     ui.showScreen("result");
   }
