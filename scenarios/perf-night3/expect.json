@@ -1,0 +1,11 @@
+{
+  "description": "Hiệu năng: một Đêm 3 đầy đủ (21 600 tick, có Bóng Mực, Gió Lạc, gió) chạy headless <= 30 giây, hai lần giống hệt nhau",
+  "seed": 1,
+  "night": 3,
+  "ticks": 21600,
+  "snapshot_every": 600,
+  "expect": {
+    "end_ticks": 21600,
+    "max_seconds": 30
+  }
+}

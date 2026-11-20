@@ -1,0 +1,43 @@
+{
+  "description": "--night 3: night_start, 360 giây, 7 đèn, L1 ở tầng 2 (Y 6); xuất phát (0,0,-30) vì (0,0,0) nằm trong tháp chuông (giả định Q3)",
+  "seed": 1,
+  "night": 3,
+  "ticks": 20,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "night_start"
+    ],
+    "snapshots": [
+      {
+        "tick": 0,
+        "path": "night",
+        "equals": 3
+      },
+      {
+        "tick": 0,
+        "path": "time_left_s",
+        "equals": 360
+      },
+      {
+        "tick": 0,
+        "path": "lanterns.6.id",
+        "equals": "L7"
+      },
+      {
+        "tick": 0,
+        "path": "lanterns.0.pos.1",
+        "equals": 6
+      },
+      {
+        "tick": 0,
+        "path": "player.pos",
+        "equals": [
+          0,
+          0,
+          -30
+        ]
+      }
+    ]
+  }
+}

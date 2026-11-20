@@ -1,0 +1,22 @@
+{
+  "description": "Đèn vừa thắp: Bóng Mực đang ở trong vùng 6 m bị đẩy ra mép (z = 26) trong <= 30 tick và không gây sát thương",
+  "seed": 1,
+  "ticks": 120,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "lantern_lit"
+    ],
+    "absent_events": [
+      "player_hit"
+    ],
+    "snapshots": [
+      {
+        "tick": 40,
+        "path": "shades.0.pos.2",
+        "approx": 26,
+        "tol": 0.05
+      }
+    ]
+  }
+}

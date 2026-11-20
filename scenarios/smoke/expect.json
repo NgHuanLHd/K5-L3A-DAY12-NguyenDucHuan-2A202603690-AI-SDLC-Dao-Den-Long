@@ -1,11 +1,17 @@
 {
-  "description": "Setup smoke: walk +Z for 1 s at player_speed, then stand still. Proves CLI, tick model, snapshot/end format.",
+  "description": "Chạy +Z 60 tick rồi thả: gia tốc 6 tick (1 m/s mỗi tick) nên 5.75 m, dừng thêm 0.25 m => z = 6.0 (TICKET-02: 6 m/s, tăng tốc/dừng 0.1 s)",
   "seed": 1,
   "ticks": 120,
   "expect": {
     "end_state": "playing",
     "end_ticks": 120,
-    "events": [],
-    "player_pos_at_end": [0, 0, 5]
+    "events": [
+      "night_start"
+    ],
+    "player_pos_at_end": [
+      0,
+      0,
+      6
+    ]
   }
 }

@@ -1,0 +1,21 @@
+{
+  "description": "Bục nhảy Đêm 3 (0,3,13): Y 12 m/s + 8 m/s hướng -Z, đáp lên tầng 2 (Y = 6)",
+  "seed": 1,
+  "night": 3,
+  "ticks": 100,
+  "expect": {
+    "end_state": "playing",
+    "snapshots": [
+      {
+        "tick": 100,
+        "path": "player.pos.1",
+        "equals": 6
+      },
+      {
+        "tick": 100,
+        "path": "player.grounded",
+        "equals": true
+      }
+    ]
+  }
+}

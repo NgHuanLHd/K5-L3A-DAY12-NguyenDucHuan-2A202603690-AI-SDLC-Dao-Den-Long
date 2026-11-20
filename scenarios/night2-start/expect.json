@@ -1,0 +1,34 @@
+{
+  "description": "--night 2: night_start, snapshot night = 2, 330 giây, 6 đèn, 20 đom đóm",
+  "seed": 1,
+  "night": 2,
+  "ticks": 20,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "night_start"
+    ],
+    "snapshots": [
+      {
+        "tick": 0,
+        "path": "night",
+        "equals": 2
+      },
+      {
+        "tick": 0,
+        "path": "time_left_s",
+        "equals": 330
+      },
+      {
+        "tick": 0,
+        "path": "lanterns.5.id",
+        "equals": "L6"
+      },
+      {
+        "tick": 0,
+        "path": "motes_active",
+        "equals": 20
+      }
+    ]
+  }
+}

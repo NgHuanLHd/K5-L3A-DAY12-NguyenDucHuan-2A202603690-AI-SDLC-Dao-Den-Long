@@ -1,0 +1,22 @@
+{
+  "description": "Mép tầng là vách đứng: Mây đi từ ngoài vào vành tầng 1 (z từ 27 xuống) bị chặn ở r = 24, không leo lên được",
+  "seed": 1,
+  "night": 3,
+  "ticks": 120,
+  "expect": {
+    "end_state": "playing",
+    "snapshots": [
+      {
+        "tick": 120,
+        "path": "player.pos.1",
+        "equals": 0
+      },
+      {
+        "tick": 120,
+        "path": "player.pos.2",
+        "min": 24,
+        "max": 24.2
+      }
+    ]
+  }
+}

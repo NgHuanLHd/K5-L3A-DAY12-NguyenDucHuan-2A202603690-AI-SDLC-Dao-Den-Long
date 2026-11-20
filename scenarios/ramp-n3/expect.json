@@ -1,0 +1,25 @@
+{
+  "description": "Dốc Đêm 3 ở 30°: đi dọc dốc từ r=30 (Y 0) lên r=24 (Y 3) rồi lên tầng 1, không rơi",
+  "seed": 1,
+  "night": 3,
+  "ticks": 120,
+  "expect": {
+    "end_state": "playing",
+    "absent_events": [
+      "player_hit"
+    ],
+    "snapshots": [
+      {
+        "tick": 60,
+        "path": "player.pos.1",
+        "min": 2.5,
+        "max": 3
+      },
+      {
+        "tick": 120,
+        "path": "player.pos.1",
+        "equals": 3
+      }
+    ]
+  }
+}

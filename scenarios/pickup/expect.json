@@ -1,1 +1,24 @@
-{ "description": "AC-07 nhặt đom đóm ở đúng pickup_radius (1.0 m, <= r): +1 carried, +10 điểm", "seed": 1, "ticks": 10, "expect": { "end_state": "playing", "end_ticks": 10, "end_score": 10, "events": ["mote_picked"] } }
+{
+  "description": "Nhặt đom đóm ở đúng pickup_radius 1.0 m (<= r): carried +1; nhặt KHÔNG có điểm (điểm tính khi nạp)",
+  "seed": 1,
+  "ticks": 10,
+  "expect": {
+    "end_state": "playing",
+    "end_score": 0,
+    "events": [
+      "mote_picked"
+    ],
+    "snapshots": [
+      {
+        "tick": 10,
+        "path": "player.carried",
+        "equals": 1
+      },
+      {
+        "tick": 10,
+        "path": "motes_active",
+        "equals": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "description": "Gió mạnh Đêm 3: mỗi 30 s một cơn gió dài 5 s; chưa gió ở tick 1790, đang gió ở tick 1800 và 2090, hết gió ở tick 2100",
+  "seed": 1,
+  "night": 3,
+  "ticks": 2100,
+  "expect": {
+    "end_state": "playing",
+    "snapshots": [
+      {
+        "tick": 1790,
+        "path": "wind.active",
+        "equals": false
+      },
+      {
+        "tick": 1800,
+        "path": "wind.active",
+        "equals": true
+      },
+      {
+        "tick": 2090,
+        "path": "wind.active",
+        "equals": true
+      },
+      {
+        "tick": 2100,
+        "path": "wind.active",
+        "equals": false
+      }
+    ]
+  }
+}

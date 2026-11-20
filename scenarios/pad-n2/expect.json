@@ -1,0 +1,33 @@
+{
+  "description": "Bục nhảy Đêm 2 (20,0,18): bắn Y 14 m/s + 24 m/s ngang về tâm đảo B (70,0,0); sau ~1.4 s đáp trong đảo B (x >= 42), chạm đất",
+  "seed": 1,
+  "night": 2,
+  "ticks": 100,
+  "expect": {
+    "end_state": "playing",
+    "snapshots": [
+      {
+        "tick": 10,
+        "path": "player.vel.1",
+        "min": 8,
+        "max": 14
+      },
+      {
+        "tick": 100,
+        "path": "player.pos.0",
+        "min": 42,
+        "max": 98
+      },
+      {
+        "tick": 100,
+        "path": "player.pos.1",
+        "equals": 0
+      },
+      {
+        "tick": 100,
+        "path": "player.grounded",
+        "equals": true
+      }
+    ]
+  }
+}

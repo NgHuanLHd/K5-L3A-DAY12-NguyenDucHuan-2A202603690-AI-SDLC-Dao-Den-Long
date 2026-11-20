@@ -26,12 +26,13 @@ if (!existsSync(cli)) {
 }
 
 function runOnce(dir, exp, out) {
-  const args = [...cmdArgs, "--seed", String(exp.seed ?? 1), "--night", "1", "--ticks", String(exp.ticks), "--out", out];
+  const args = [...cmdArgs, "--seed", String(exp.seed ?? 1), "--night", String(exp.night ?? 1), "--ticks", String(exp.ticks), "--out", out];
   if (existsSync(join(dir, "scenario.json"))) args.push("--scenario", join(dir, "scenario.json"));
   if (existsSync(join(dir, "inputs.json"))) args.push("--inputs", join(dir, "inputs.json"));
   if (exp.snapshot_every) args.push("--snapshot-every", String(exp.snapshot_every));
+  const t0 = Date.now();
   const r = spawnSync(cmd, args, { cwd: root, encoding: "utf8" });
-  return { code: r.status, stderr: r.stderr.trim(), cmdline: `${cmd} ${args.map((a) => a.replace(root + "\\", "").replace(root + "/", "")).join(" ")}` };
+  return { code: r.status, stderr: r.stderr.trim(), seconds: (Date.now() - t0) / 1000, cmdline: `${cmd} ${args.map((a) => a.replace(root + "\\", "").replace(root + "/", "")).join(" ")}` };
 }
 
 const near = (a, b) => Math.abs(a - b) <= 1e-3;
@@ -70,6 +71,20 @@ for (const name of readdirSync(join(root, "scenarios")).sort()) {
       if (!snap.player.pos.every((v, i) => near(v, e.player_pos_at_end[i])))
         problems.push(`player.pos ${JSON.stringify(snap.player.pos)} != ${JSON.stringify(e.player_pos_at_end)}`);
     }
+    // Snapshot checks: { tick, path: "player.pos.2", equals | approx (+tol) | min | max }.
+    for (const c of e.snapshots ?? []) {
+      const snap = lines.find((l) => l.type === "snapshot" && l.tick === c.tick);
+      if (!snap) { problems.push(`no snapshot at tick ${c.tick}`); continue; }
+      const v = c.path.split(".").reduce((o, k) => (o === undefined || o === null ? undefined : o[k]), snap);
+      const ok =
+        (c.equals !== undefined && JSON.stringify(v) === JSON.stringify(c.equals)) ||
+        (c.approx !== undefined && typeof v === "number" && Math.abs(v - c.approx) <= (c.tol ?? 1e-3)) ||
+        (c.min !== undefined && typeof v === "number" && v >= c.min && (c.max === undefined || v <= c.max)) ||
+        (c.min === undefined && c.max !== undefined && typeof v === "number" && v <= c.max);
+      if (!ok) problems.push(`tick ${c.tick} ${c.path} = ${JSON.stringify(v)} (want ${JSON.stringify(c.equals ?? c.approx ?? [c.min, c.max])})`);
+    }
+    if (e.max_seconds !== undefined && Math.max(a.seconds, b.seconds) > e.max_seconds)
+      problems.push(`took ${Math.max(a.seconds, b.seconds).toFixed(2)} s > ${e.max_seconds} s`);
   }
   if (problems.length) failed++;
   rows.push({ name, desc: exp.description ?? "", cmd: a.cmdline, ok: problems.length === 0, problems });

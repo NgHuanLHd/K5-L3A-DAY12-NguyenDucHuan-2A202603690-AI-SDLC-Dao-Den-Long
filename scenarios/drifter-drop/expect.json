@@ -1,0 +1,35 @@
+{
+  "description": "Tỏa Sáng trúng Gió Lạc đang flee có mang 3 đom đóm: thả lại tại chỗ (3 đom đóm rơi), con đó biến mất sau 120 tick",
+  "seed": 1,
+  "night": 2,
+  "ticks": 130,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "pulse",
+      "drifter_drop"
+    ],
+    "snapshots": [
+      {
+        "tick": 20,
+        "path": "motes_active",
+        "equals": 3
+      },
+      {
+        "tick": 20,
+        "path": "drifters.0.stolen",
+        "equals": 0
+      },
+      {
+        "tick": 110,
+        "path": "drifters.0.state",
+        "equals": "flee"
+      },
+      {
+        "tick": 130,
+        "path": "drifters.0.state",
+        "equals": "removed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "description": "Bùa Gió Đêm 2 ở (35,0,0): nhặt -> charm_picked {C1, 600}, bùa hết khả dụng, hiệu lực còn 591 tick ở tick 10",
+  "seed": 1,
+  "night": 2,
+  "ticks": 20,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "charm_picked"
+    ],
+    "snapshots": [
+      {
+        "tick": 10,
+        "path": "charms.0.available",
+        "equals": false
+      },
+      {
+        "tick": 10,
+        "path": "player.charm_s",
+        "approx": 9.85,
+        "tol": 0.005
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "description": "Lướt: 14 m/s x 0.2 s = 2.8 m theo hướng quay mặt (+Z); hồi chiêu 1.5 s tính từ lúc bắt đầu nên lần bấm thứ hai ở tick 21 bị bỏ qua",
+  "seed": 1,
+  "ticks": 40,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "dash"
+    ],
+    "snapshots": [
+      {
+        "tick": 20,
+        "path": "player.pos.2",
+        "approx": 2.8,
+        "tol": 0.005
+      },
+      {
+        "tick": 40,
+        "path": "player.pos.2",
+        "approx": 2.8,
+        "tol": 0.005
+      },
+      {
+        "tick": 10,
+        "path": "player.dash_cd_s",
+        "approx": 1.35,
+        "tol": 0.005
+      }
+    ]
+  }
+}

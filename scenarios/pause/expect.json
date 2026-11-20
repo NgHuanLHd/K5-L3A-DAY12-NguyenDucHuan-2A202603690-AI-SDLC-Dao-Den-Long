@@ -1,0 +1,41 @@
+{
+  "description": "Tạm dừng: frame tick 5 -> paused từ tick 6; tick vẫn tăng nhưng sim_tick đứng ở 5 và snapshot ghi paused; frame tick 10 -> resumed",
+  "seed": 1,
+  "ticks": 30,
+  "snapshot_every": 1,
+  "expect": {
+    "end_state": "playing",
+    "events": [
+      "paused",
+      "resumed"
+    ],
+    "snapshots": [
+      {
+        "tick": 8,
+        "path": "state",
+        "equals": "paused"
+      },
+      {
+        "tick": 8,
+        "path": "sim_tick",
+        "equals": 5
+      },
+      {
+        "tick": 8,
+        "path": "time_left_s",
+        "approx": 299.917,
+        "tol": 0.001
+      },
+      {
+        "tick": 12,
+        "path": "state",
+        "equals": "playing"
+      },
+      {
+        "tick": 12,
+        "path": "sim_tick",
+        "equals": 7
+      }
+    ]
+  }
+}

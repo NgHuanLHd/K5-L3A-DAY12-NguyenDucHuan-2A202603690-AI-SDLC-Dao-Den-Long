@@ -1,1 +1,33 @@
-{ "description": "AC-11 F tỏa sáng: Bóng Mực ở đúng pulse_radius 6 m bị choáng, +5 điểm, không chạm được Mây", "seed": 1, "ticks": 60, "expect": { "end_state": "playing", "end_ticks": 60, "end_score": 5, "events": ["pulse"], "absent_events": ["player_hit"] } }
+{
+  "description": "F tỏa sáng: tốn 3, Bóng Mực ở 4.9 m (<= 5 m, 3D) choáng + đẩy lùi đúng 4 m (4.9 -> 8.9), +5 điểm, không chạm được Mây",
+  "seed": 1,
+  "ticks": 100,
+  "expect": {
+    "end_state": "playing",
+    "end_score": 5,
+    "events": [
+      "pulse"
+    ],
+    "absent_events": [
+      "player_hit"
+    ],
+    "snapshots": [
+      {
+        "tick": 20,
+        "path": "shades.0.state",
+        "equals": "stunned"
+      },
+      {
+        "tick": 20,
+        "path": "shades.0.pos.2",
+        "approx": 8.9,
+        "tol": 0.01
+      },
+      {
+        "tick": 20,
+        "path": "player.carried",
+        "equals": 0
+      }
+    ]
+  }
+}
