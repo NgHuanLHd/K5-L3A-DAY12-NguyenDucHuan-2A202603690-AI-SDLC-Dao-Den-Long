@@ -4,53 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Đảo Đèn Lồng</title>
-    <style>
-      html, body { margin: 0; height: 100%; background: #0a1030; color: #ffe2a8; font-family: system-ui, sans-serif; overflow: hidden; }
-      #hud { position: fixed; top: 12px; left: 12px; padding: 8px 12px; background: rgba(10, 16, 48, 0.6); border-radius: 8px; line-height: 1.5; font-size: 14px; pointer-events: none; }
-      #help { position: fixed; bottom: 12px; left: 12px; font-size: 12px; opacity: 0.7; }
-
-      /* End-of-game screen */
-      #end { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 45%, rgba(10, 16, 48, 0.55), rgba(5, 6, 20, 0.88)); backdrop-filter: blur(3px); animation: endFade 0.5s ease-out; }
-      #end.show { display: flex; }
-      #end .card { --accent: #ffb347; --glow: rgba(255, 179, 71, 0.35); width: min(420px, calc(100vw - 32px)); box-sizing: border-box; padding: 28px 28px 24px; text-align: center; background: linear-gradient(180deg, rgba(30, 24, 54, 0.96), rgba(16, 14, 38, 0.96)); border: 2px solid var(--accent); border-radius: 18px; box-shadow: 0 0 40px var(--glow), 0 12px 40px rgba(0, 0, 0, 0.5); animation: endRise 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
-      #end.lost .card { --accent: #9b6bd6; --glow: rgba(155, 107, 214, 0.35); }
-      #end .icon { height: 56px; color: var(--accent); filter: drop-shadow(0 0 12px var(--glow)); }
-      #end h1 { margin: 10px 0 4px; font-size: 28px; color: var(--accent); letter-spacing: 0.3px; }
-      #end .reason { margin: 0 0 18px; font-size: 14px; opacity: 0.85; }
-      #end .score { margin: 0 0 4px; font-size: 13px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px; }
-      #end .score-num { margin: 0 0 18px; font-size: 44px; font-weight: 700; color: #fff1c9; }
-      #end .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
-      #end .stat { padding: 10px 6px; background: rgba(255, 255, 255, 0.06); border-radius: 10px; }
-      #end .stat b { display: block; font-size: 20px; color: #fff1c9; }
-      #end .stat span { font-size: 12px; opacity: 0.7; }
-      #end button { font: inherit; font-size: 16px; font-weight: 600; padding: 11px 26px; color: #1a1030; background: var(--accent); border: 0; border-radius: 999px; cursor: pointer; box-shadow: 0 0 18px var(--glow); transition: transform 0.12s, filter 0.12s; }
-      #end button:hover { transform: translateY(-1px); filter: brightness(1.1); }
-      #end button:focus-visible { outline: 3px solid #fff1c9; outline-offset: 3px; }
-      #end .hint { margin: 12px 0 0; font-size: 12px; opacity: 0.6; }
-      @keyframes endFade { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes endRise { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
-      @media (prefers-reduced-motion: reduce) { #end, #end .card { animation: none; } }
-    </style>
   </head>
   <body>
-    <div id="hud"></div>
-    <div id="end" role="dialog" aria-modal="true" aria-labelledby="endTitle">
-      <div class="card">
-        <div class="icon" id="endIcon" aria-hidden="true"></div>
-        <h1 id="endTitle"></h1>
-        <p class="reason" id="endReason"></p>
-        <p class="score">Điểm</p>
-        <p class="score-num" id="endScore">0</p>
-        <div class="stats">
-          <div class="stat"><b id="endLanterns">0/5</b><span>Đèn đã thắp</span></div>
-          <div class="stat"><b id="endFlames">0</b><span>Lửa còn lại</span></div>
-          <div class="stat"><b id="endTime">0 s</b><span>Thời gian còn</span></div>
-        </div>
-        <button id="endReplay" type="button">Chơi lại</button>
-        <p class="hint">hoặc nhấn R</p>
-      </div>
-    </div>
-    <div id="help">WASD: đi · Space: nhảy · E: nạp đèn · F: tỏa sáng · ←/→: xoay camera · R: chơi lại</div>
+    <div id="stage"></div>
+    <div id="ui"></div>
     <script type="module" src="/src/client/main.ts"></script>
   </body>
 </html>
