@@ -31,7 +31,8 @@
 4. Skill `verify-client`: hướng dẫn kiểm giao diện bằng trình duyệt, kèm hook dev `window.__ddl`.
 
 ## Token và chi phí
-- Chưa có số đo chính xác theo từng phase. Nhật ký `docs/notes/ai-log.md` có ước lượng cho phase 2 và 3; phase 4 chưa điền.
+- Số đo (ước chừng): cửa sổ ngữ cảnh của phiên làm phase 4 đang dùng khoảng 340.600 token (34% của cửa sổ 1 triệu). Đây là ngữ cảnh hiện tại của một phiên, không phải tổng token đã tiêu, và không bao gồm các phiên trước đã được nén.
+- Tổng token của cả dự án chưa đo được chính xác. Nhật ký `docs/notes/ai-log.md` có ước lượng cho phase 2 và 3; phase 4 chưa điền.
 - Cách tiết kiệm đã dùng: đổi sang model nhẹ hơn cho việc lặp lại, tránh đọc lại file đã đọc, dùng Edit thay vì ghi lại toàn bộ file, và gom các lệnh độc lập vào một lượt.
 
 ## Nếu làm lại
