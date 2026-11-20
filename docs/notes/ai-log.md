@@ -3,11 +3,17 @@
 ## Token / chi phí
 | Phase | Công cụ / model | Token hoặc chi phí ước tính | Số phiên agent | Cách tiết kiệm |
 |---|---|---|---|---|
-| Setup | Claude Code (Opus 5.5) | (điền) | 1 | Chép spec Phase 1 vào `docs/lab/PRD-0.md` để không phải mở lại lab board |
-| 1 | Claude Code (Opus 5.5) | (điền) | 1 | Kiểm tra bằng headless/test thay vì chơi thử nhiều lần; viết toàn bộ luật trong một lượt theo danh sách giả định đã chốt |
+| Setup | Claude Code (Opus 5.5 / Sonnet 5.5) | ~100k token ngữ cảnh (ước tính) | 1 | Chép spec Phase 1 vào `docs/lab/PRD-0.md` để không phải mở lại lab board |
+| 1 | Claude Code (Opus 5.5 / Sonnet 5.5) | ~200k token ngữ cảnh thêm (ước tính) | 1 | Kiểm tra bằng headless/test thay vì chơi thử nhiều lần; viết toàn bộ luật trong một lượt theo danh sách giả định đã chốt |
 | 2 | | | | |
 | 3 | | | | |
 | 4 | | | | |
+
+**Cách ước tính (trung thực về độ chính xác):**
+- Đo thật: ngữ cảnh của phiên Claude Code đã dùng khoảng **300k / 1M token** sau khi hoàn thành Phase 1, gồm đọc tài liệu lab, setup, viết luật, test, kiểm tra trên trình duyệt và rà soát contract (công cụ `get_usage`, lúc 2026-11-20 ~15:20 ICT). Con số này là kích thước cửa sổ, không phải tổng token đã tính phí qua các lượt, vì công cụ không cho biết tổng đó.
+- Ước tính: chia khoảng 1/3 cho Setup và 2/3 cho Phase 1 theo khối lượng công việc. Hạn mức 5 giờ của gói đã dùng khoảng 32% tại thời điểm đo.
+- Đổi model giữa chừng (Opus, Sonnet, Haiku) cho các việc nhẹ như hướng dẫn và giải thích.
+- Tiết kiệm: kiểm bằng headless/test thay vì chơi thử; viết luật trong một lượt sau khi chốt giả định; không chạy agent con; chép spec vào repo để khỏi đọc lại lab board.
 
 ## Prompt chính
 - Setup: "hoàn thiện nốt các bước setup" → tạo khung TS + Three.js, headless theo contract, test, harness.
