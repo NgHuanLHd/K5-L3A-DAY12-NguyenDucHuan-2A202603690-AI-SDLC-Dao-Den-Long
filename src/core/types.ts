@@ -205,4 +205,6 @@ export interface Scenario {
   charms?: { id: string; pos?: Vec3; available?: boolean; respawn_ticks?: number }[];
   lanterns?: { id: string; pos?: Vec3; lit?: boolean; deposited?: number; fuel?: number; ever_lit?: boolean }[];
   time_left_s?: number;
+  /** TICKET-04 bench scene (see World.bench). Not used by headless scenarios. */
+  bench?: boolean;
 }

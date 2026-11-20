@@ -41,6 +41,8 @@ export interface World {
   charms: Charm[];
   wind: Wind;
   windEnabled: boolean;
+  /** TICKET-04 benchmark scene: only Shades wander; no timers, fuel, pickups, damage, spawns or end. */
+  bench: boolean;
   randomMotes: boolean;
   randomShades: boolean;
   randomDrifters: boolean;
@@ -146,6 +148,7 @@ export function createWorld(tuning: Tuning, seed: number, night: number, scenari
     charms: map.charms.map((c) => ({ id: c.id, pos: [...c.pos] as Vec3, available: true, respawn: 0 })),
     wind: { active: false, dirDeg: 0, ticksLeft: 0 },
     windEnabled: scenario.wind_enabled ?? map.wind,
+    bench: scenario.bench === true,
     randomMotes: scenario.random_motes !== false,
     randomShades: scenario.random_shades !== false,
     randomDrifters: scenario.random_drifters ?? map.drifters,
@@ -283,6 +286,10 @@ export function step(w: World, input: InputState): GameEvent[] {
 
   w.simTick++;
   const c: Ctx = { w, input, emit, pressed: (k) => pressedKey(k) };
+  if (w.bench) {
+    moveEnemies(c);
+    return finish();
+  }
   tickCounters(c);
   movePlayer(c);
   pickups(c);
@@ -676,7 +683,7 @@ function wanderTarget(w: World, s: Shade): Lantern | null {
 function moveEnemies({ w }: Ctx): void {
   const p = w.player;
   const speed = shadeSpeedOf(w);
-  const detect = (s: Shade): ShadeState => (distXZ(s.pos, p.pos) <= SHADE_DETECT ? "chase" : "wander");
+  const detect = (s: Shade): ShadeState => (!w.bench && distXZ(s.pos, p.pos) <= SHADE_DETECT ? "chase" : "wander");
   for (const s of w.shades) {
     if ((s.state === "stunned" && s.stunTicks === 0) || s.state === "spawning") s.state = detect(s);
     if (s.state === "stunned") {
@@ -699,7 +706,7 @@ function moveEnemies({ w }: Ctx): void {
         s.state = "wander";
         s.drainLantern = null;
         s.drainTicks = 0;
-      } else if (distXZ(s.pos, p.pos) <= w.tuning.safe_radius) {
+      } else if (!w.bench && distXZ(s.pos, p.pos) <= w.tuning.safe_radius) {
         // Mây within 6 m: the shade switches to chase (ticket).
         s.state = "chase";
         s.drainLantern = null;
@@ -711,7 +718,7 @@ function moveEnemies({ w }: Ctx): void {
       else shadeStep(w, s, p.pos[0], p.pos[2], speed);
     } else {
       // wander (noticing Mây switches to chase in the same tick and moves at once)
-      if (distXZ(s.pos, p.pos) <= SHADE_DETECT) {
+      if (!w.bench && distXZ(s.pos, p.pos) <= SHADE_DETECT) {
         s.state = "chase";
         shadeStep(w, s, p.pos[0], p.pos[2], speed);
       } else {

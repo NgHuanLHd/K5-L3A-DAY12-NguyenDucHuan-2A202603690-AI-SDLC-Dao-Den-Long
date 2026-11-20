@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Contract, InputState } from "../core/types.js";
 import { createWorld, DEFAULT_INPUT, snapshot, step } from "../core/world.js";
 import { FormatError, parseArgs, parseInputs, parseScenario, UsageError, type Frame } from "./parse.js";
+import { readLeaderboard } from "./leaderboard-store.js";
 
 /** Repo root: works from src/headless (vitest) and dist/headless (built). */
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -51,6 +52,15 @@ export function simulate(
 /** CLI entry. Returns exit code: 0 ok, 1 usage/IO error, 2 bad inputs/scenario file. */
 export function runHeadless(argv: string[], log: (msg: string) => void = (m) => process.stderr.write(m + "\n")): number {
   try {
+    const exp = argv.indexOf("--export-leaderboard");
+    if (exp >= 0) {
+      // TICKET-04: write {"entries": [...]} from the local leaderboard file.
+      const out = argv[exp + 1];
+      if (!out) throw new UsageError("--export-leaderboard needs an output path");
+      mkdirSync(dirname(resolve(out)), { recursive: true });
+      writeFileSync(out, JSON.stringify({ entries: readLeaderboard() }, null, 2) + "\n", "utf8");
+      return 0;
+    }
     const args = parseArgs(argv);
     const scenario = args.scenario ? parseScenario(readText(args.scenario, "scenario")) : undefined;
     const frames = args.inputs ? parseInputs(readText(args.inputs, "inputs")) : undefined;

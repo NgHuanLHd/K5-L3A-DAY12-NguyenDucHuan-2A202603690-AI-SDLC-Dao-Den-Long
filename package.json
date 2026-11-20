@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json && vite build",
-    "start": "vite preview --port 5173 --strictPort",
+    "start": "node scripts/serve.mjs",
     "dev": "vite",
     "headless": "node dist/headless/cli.js",
     "test": "vitest run",

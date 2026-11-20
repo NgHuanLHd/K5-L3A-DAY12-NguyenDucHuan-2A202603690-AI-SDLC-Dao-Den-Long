@@ -10,6 +10,11 @@
 ## Phase 2
 ## Phase 3
 ## Phase 4
+- Đạt: bench và soak chạy thật (bench 30 s, soak 10 Đêm, 0 crash); bảng xếp hạng và `--export-leaderboard`; đổi phím, trợ năng; contract v1.3; 171 test; 33/33 scenario cũ không đổi.
+- Chưa đạt (lý do): soak không đạt ngưỡng bộ nhớ 1.2× (đo 1.32×; heap JS ổn định, phần tăng là RSS khởi động V8); vsync không xác minh được; các mục trợ năng chưa kiểm bằng mắt.
+- AI sai ở đâu: lệnh PowerShell và shell có ký tự đặc biệt bị lỗi; script bench lần đầu treo 240 s chưa rõ nguyên nhân (ba lần sau chạy đúng); đã thêm log tiến trình ra stderr; lỗi `Buffer` bị `JSON.stringify` trong server (đã sửa trước khi chạy); lệnh dọn tiến trình dùng điều kiện quá rộng (đã bỏ, chỉ nhắm vào tiến trình có `ddl-bench-`).
+- Chỉnh harness: không có thay đổi harness trong phase này.
+- Token: chưa đo chính xác (cần số từ phiên làm việc).
 
 ## Retro cả dự án
 - Số liệu (test, scenario, token, thời gian):

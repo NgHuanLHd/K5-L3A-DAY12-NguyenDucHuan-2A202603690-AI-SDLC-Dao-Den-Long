@@ -1,0 +1,13 @@
+/* TICKET-04: leaderboard screen and name entry. Sizes respect the 18 px minimum UI text (ticket section 4). */
+#board .card { max-width: 760px; }
+#board table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 18px; }
+#board th, #board td { padding: 8px 10px; border-bottom: 1px solid rgba(242, 193, 78, 0.25); text-align: left; }
+#board th { color: #F2C14E; font-weight: 700; }
+#board td.num, #board th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.namebox { margin: 16px auto 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; justify-content: center; }
+.namebox label { display: flex; flex-direction: column; gap: 4px; font-size: 18px; }
+.namebox input { font: inherit; font-size: 20px; padding: 8px 10px; border-radius: 8px; border: 2px solid #F2C14E; background: #0E1430; color: #FFF6E0; width: 220px; }
+.namebox button { font: inherit; font-size: 18px; padding: 10px 18px; border-radius: 10px; }
+.namebox button:disabled { opacity: 0.5; }
+.namebox .nameMsg { width: 100%; margin: 0; font-size: 18px; min-height: 1.4em; text-align: center; }
+.hidden-box { display: none !important; }

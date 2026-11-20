@@ -1,0 +1,38 @@
+/* TICKET-04 accessibility: reduced motion, large text, HUD cues, rebinding rows. */
+
+/* Pulse flash (full-screen, brief). Off with "Giảm chuyển động". */
+#fxFlash { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 40; background: radial-gradient(circle at 50% 50%, rgba(0, 179, 255, 0.35), rgba(0, 179, 255, 0) 70%); }
+#fxFlash.on { animation: fxFlash 0.35s ease-out; }
+@keyframes fxFlash { from { opacity: 1; } to { opacity: 0; } }
+
+/* Camera-style shake on a hit (applied to the 3D stage). Off with "Giảm chuyển động". */
+#stage.shake { animation: fxShake 0.3s linear; }
+@keyframes fxShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-4px, -2px); }
+  80% { transform: translate(3px, 2px); }
+}
+body.reduce-motion #fxFlash.on, body.reduce-motion #stage.shake { animation: none; }
+
+/* Large text: whole UI ×1.25. */
+body.large-text #ui { zoom: 1.25; }
+
+/* Cue line under the top HUD and the shade arrow. */
+#hudCue {
+  position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 30;
+  background: rgba(14, 20, 48, 0.88); color: #FFF6E0; border: 2px solid #F2C14E; border-radius: 10px;
+  padding: 8px 16px; font-size: 18px; font-weight: 700; white-space: nowrap; pointer-events: none;
+}
+#hudShadeArrow { position: fixed; z-index: 30; pointer-events: none; }
+#hudShadeArrow.hidden, #hudCue.hidden { display: none; }
+
+/* Key rebinding rows in Settings. */
+.keyrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0; font-size: 18px; }
+.keyrow button { min-width: 160px; font: inherit; font-size: 18px; padding: 6px 12px; border-radius: 8px; }
+.sub-head { font-size: 20px; margin: 14px 0 4px; color: #F2C14E; }
+.nameMsg { font-size: 18px; }
+
+/* Settings is taller than 720 px now: the card scrolls instead of pushing its title off screen. */
+#settings .card { max-height: calc(100vh - 24px); overflow-y: auto; }

@@ -25,7 +25,7 @@ function file(name: string, data: unknown): string {
 
 describe("contract file v1.1", () => {
   it("has the v1.1 fields and the standard numbers", () => {
-    expect(contract.contract_version).toBe("1.2");
+    expect(contract.contract_version).toBe("1.3");
     expect(Object.keys(T).sort()).toEqual(
       ["player_speed","carry_capacity","lantern_cost","lantern_count_night1","pickup_radius","interact_radius","pulse_cost","pulse_radius","night1_duration_s","flames","invuln_s","hit_drop_ratio","pulse_stun_s","pulse_push_m","pulse_cooldown_s","safe_radius","shade_speed","shade_hit_radius","fall_enabled","score","dash_speed","dash_duration_s","dash_cooldown_s","night2_duration_s","night3_duration_s","fuel_max","fuel_decay_per_s","fuel_per_mote","relight_cost","win_ratio","drain_per_s","low_fuel_threshold","capacity_max"].sort(),
     );
@@ -166,6 +166,6 @@ describe("performance", () => {
     }
   });
   it("loads the contract from any working directory", () => {
-    expect(loadContract().contract_version).toBe("1.2");
+    expect(loadContract().contract_version).toBe("1.3");
   });
 });

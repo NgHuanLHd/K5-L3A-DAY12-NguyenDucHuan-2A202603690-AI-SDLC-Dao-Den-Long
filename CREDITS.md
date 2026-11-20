@@ -21,3 +21,8 @@ Mã nguồn, tài liệu và harness được viết cùng Claude Code (Anthropi
 - **Âm thanh:** nhạc nền và mọi hiệu ứng được tổng hợp trực tiếp bằng WebAudio trong `src/client/audio.ts` (do Claude Code viết cùng tôi). Không dùng file âm thanh hay mẫu có sẵn.
 - **Hình khối:** vẫn chỉ là primitive của three.js; bảng màu theo TICKET-02.
 - **Biểu tượng giao diện:** SVG vẽ tay trong `src/client/ui.ts`.
+
+## Phase 4
+- **Bench và soak:** `scripts/bench.mjs` và `src/headless/soak.ts` chỉ dùng module có sẵn của Node. Bench mở Chrome hoặc Edge đã cài trên máy; trình duyệt không được đóng gói.
+- **Máy chủ cục bộ:** `scripts/serve.mjs` chỉ dùng module có sẵn của Node.
+- **Asset mới:** không có. Giao diện bảng xếp hạng, trợ năng và cảnh bench dùng CSS và DOM thuần.
