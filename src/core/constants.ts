@@ -66,3 +66,14 @@ export const WIND_EVERY = 1800; // 30 s
 export const WIND_TICKS = 300; // 5 s
 export const WIND_WARN_TICKS = 120; // 2 s (client warning only)
 export const WIND_SPEED = 2;
+
+// Fuel (Phase 3). Stored as integer units of 1/60 fuel so that 1 unit == 1 tick of 1.0 fuel/s.
+export const FUEL_UNIT = 60;
+export const FUEL_MAX_U = 100 * FUEL_UNIT; // 6000
+export const LOW_FUEL_U = 30 * FUEL_UNIT; // 1800: below this a lit lantern has no safe zone
+export const DECAY_U_PER_TICK = 1; // 1.0 fuel/s
+export const DRAIN_U_PER_TICK = 5; // 5 fuel/s per draining shade
+export const MOTE_FUEL_U = 10 * FUEL_UNIT; // fuel_per_mote
+export const DRAIN_RADIUS = 2;
+export const FUEL_EVENT_EVERY = 60; // fuel_drain is written every 60 ticks while draining
+export const CAPACITY_STEP = 2; // capacity = carry_capacity + 2 × successful lights, max capacity_max

@@ -2,20 +2,22 @@
 
 export type Vec3 = [number, number, number];
 export type GameState = "playing" | "paused" | "won" | "lost";
-export type ShadeState = "spawning" | "wander" | "chase" | "recoil" | "stunned";
+export type ShadeState = "spawning" | "wander" | "chase" | "recoil" | "stunned" | "drain";
 export type DrifterState = "idle" | "chase" | "flee" | "removed";
-export const SHADE_STATES: ShadeState[] = ["spawning", "wander", "chase", "recoil", "stunned"];
+export const SHADE_STATES: ShadeState[] = ["spawning", "wander", "chase", "recoil", "stunned", "drain"];
 export const DRIFTER_STATES: DrifterState[] = ["idle", "chase", "flee", "removed"];
 
 export interface ScoreTuning {
   per_mote: number;
   per_lantern: number;
+  per_relight: number;
   per_stun: number;
-  per_second_left: number;
+  per_drain_stun: number;
+  per_lit_dawn: number;
   per_flame_left: number;
 }
 
-/** Mirrors game.contract.json "tuning". Values are the single source of truth. */
+/** Mirrors game.contract.json "tuning" (contract v1.2). */
 export interface Tuning {
   player_speed: number;
   carry_capacity: number;
@@ -42,6 +44,14 @@ export interface Tuning {
   dash_cooldown_s: number;
   night2_duration_s: number;
   night3_duration_s: number;
+  fuel_max: number;
+  fuel_decay_per_s: number;
+  fuel_per_mote: number;
+  relight_cost: number;
+  win_ratio: number;
+  drain_per_s: number;
+  low_fuel_threshold: number;
+  capacity_max: number;
 }
 
 export interface Contract {
@@ -81,14 +91,21 @@ export interface Player {
   launched: boolean;
   launchVel: [number, number];
   respawnWait: number;
+  /** Successful lights this night (relights count). Drives carrying capacity. */
+  successfulLights: number;
 }
 
 export interface Lantern {
   id: string;
   pos: Vec3;
   lit: boolean;
+  /** Motes deposited toward the next light (unlit lanterns only). */
   deposited: number;
-  /** Internal: simTick at which the lantern was lit (for safe-zone eviction). */
+  /** Fuel in units of 1/60 (0 when unlit). */
+  fuelU: number;
+  everLit: boolean;
+  relitCount: number;
+  /** Internal: tick at which the lantern was lit or refuelled past the low-fuel line (drives eviction). */
   litAt: number;
 }
 
@@ -103,6 +120,11 @@ export interface Shade {
   evict: number;
   evictFrom: string | null;
   waypoint: [number, number] | null;
+  /** Lantern being drained while state === "drain". */
+  drainLantern: string | null;
+  drainTicks: number;
+  /** Scenario hook: lantern this shade walks to while wandering. */
+  targetLantern: string | null;
 }
 
 export interface Mote {
@@ -149,7 +171,10 @@ export type EventName =
   | "drifter_drop"
   | "night_start"
   | "paused"
-  | "resumed";
+  | "resumed"
+  | "refuel"
+  | "lantern_out"
+  | "fuel_drain";
 
 export interface GameEvent {
   type: "event";
@@ -158,7 +183,7 @@ export interface GameEvent {
   data: Record<string, unknown>;
 }
 
-/** Scenario file (Test Contract D, v1.1). All fields optional. */
+/** Scenario file (Test Contract D, v1.2). All fields optional. */
 export interface Scenario {
   player?: {
     pos?: Vec3;
@@ -168,15 +193,16 @@ export interface Scenario {
     dash_cd_ticks?: number;
     pulse_cd_ticks?: number;
     charm_ticks?: number;
+    successful_lights?: number;
   };
   random_motes?: boolean;
   random_shades?: boolean;
   random_drifters?: boolean;
   wind_enabled?: boolean;
   motes?: ({ pos: Vec3; kind?: "random" | "dropped"; ttl_s?: number | null } | Vec3)[];
-  shades?: { id?: string; pos: Vec3; state?: ShadeState; state_ticks_left?: number }[];
+  shades?: { id?: string; pos: Vec3; state?: ShadeState; state_ticks_left?: number; target_lantern_id?: string }[];
   drifters?: { id?: string; pos: Vec3; state?: DrifterState; stolen?: number; state_ticks_left?: number }[];
   charms?: { id: string; pos?: Vec3; available?: boolean; respawn_ticks?: number }[];
-  lanterns?: { id: string; pos?: Vec3; lit?: boolean; deposited?: number }[];
+  lanterns?: { id: string; pos?: Vec3; lit?: boolean; deposited?: number; fuel?: number; ever_lit?: boolean }[];
   time_left_s?: number;
 }

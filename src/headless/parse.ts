@@ -121,7 +121,7 @@ export function parseScenario(text: string): Scenario {
       need(isVec3(p.pos), "player.pos: [x,y,z] required");
       s.player.pos = p.pos as Vec3;
     }
-    for (const k of ["carried", "flames", "invuln_ticks", "dash_cd_ticks", "pulse_cd_ticks", "charm_ticks"] as const) {
+    for (const k of ["carried", "flames", "invuln_ticks", "dash_cd_ticks", "pulse_cd_ticks", "charm_ticks", "successful_lights"] as const) {
       if (p[k] !== undefined) {
         need(isNat(p[k]), `player.${k}: non-negative integer required`);
         s.player[k] = p[k] as number;
@@ -169,6 +169,10 @@ export function parseScenario(text: string): Scenario {
       if (o.state_ticks_left !== undefined) {
         need(isNat(o.state_ticks_left), `shades[${i}].state_ticks_left: non-negative integer required`);
         out.state_ticks_left = o.state_ticks_left as number;
+      }
+      if (o.target_lantern_id !== undefined) {
+        need(typeof o.target_lantern_id === "string", `shades[${i}].target_lantern_id: string required`);
+        out.target_lantern_id = o.target_lantern_id as string;
       }
       return out;
     });
@@ -239,6 +243,14 @@ export function parseScenario(text: string): Scenario {
       if (o.deposited !== undefined) {
         need(isNat(o.deposited), `${at}.deposited: non-negative integer required`);
         out.deposited = o.deposited as number;
+      }
+      if (o.fuel !== undefined) {
+        need(isNum(o.fuel) && o.fuel >= 0 && o.fuel <= 100, `${at}.fuel: number in [0, 100] required`);
+        out.fuel = o.fuel as number;
+      }
+      if (o.ever_lit !== undefined) {
+        need(typeof o.ever_lit === "boolean", `${at}.ever_lit: boolean required`);
+        out.ever_lit = o.ever_lit as boolean;
       }
       return out;
     });

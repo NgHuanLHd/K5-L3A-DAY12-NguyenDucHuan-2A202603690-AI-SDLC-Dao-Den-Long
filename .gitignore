@@ -16,3 +16,4 @@ docs/lab/*
 !docs/lab/PRD-0.md
 !docs/lab/TICKET-02.md
 .claude/launch.json
+!docs/lab/TICKET-03.md
