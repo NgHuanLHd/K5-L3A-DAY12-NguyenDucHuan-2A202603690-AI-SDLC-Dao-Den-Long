@@ -1,0 +1,1 @@
+{ "description": "AC-11 F tỏa sáng: Bóng Mực ở đúng pulse_radius 6 m bị choáng, +5 điểm, không chạm được Mây", "seed": 1, "ticks": 60, "expect": { "end_state": "playing", "end_ticks": 60, "end_score": 5, "events": ["pulse"], "absent_events": ["player_hit"] } }

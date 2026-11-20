@@ -1,0 +1,1 @@
+{ "description": "AC-10 + AC-12 Bóng Mực chạm Mây còn 1 lửa -> player_hit -> thua no_flames ở tick 1", "seed": 1, "ticks": 60, "expect": { "end_state": "lost", "end_ticks": 1, "end_score": 0, "events": ["player_hit", "game_over"] } }

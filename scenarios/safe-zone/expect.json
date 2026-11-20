@@ -1,0 +1,1 @@
+{ "description": "AC-09 Mây đứng ở đèn đã thắp: Bóng Mực không vào safe_radius 3 m nên không chạm được trong 10 giây", "seed": 1, "ticks": 600, "expect": { "end_state": "playing", "end_ticks": 600, "end_score": 0, "absent_events": ["player_hit"] } }

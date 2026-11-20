@@ -1,0 +1,1 @@
+{ "description": "AC-05 inputs sai (move ngoài [-1,1]) -> mã thoát 2", "seed": 1, "ticks": 10, "expect": { "exit_code": 2 } }

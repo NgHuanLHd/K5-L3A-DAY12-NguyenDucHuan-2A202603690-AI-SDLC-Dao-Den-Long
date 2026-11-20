@@ -1,0 +1,1 @@
+{ "description": "AC-08 + AC-12 E nạp 3 vào L1 (cách 2.0 m) -> thắp đèn cuối -> thắng. Điểm 100 + 59 giây x1 + 3 lửa x50 = 309", "seed": 1, "ticks": 60, "expect": { "end_state": "won", "end_ticks": 1, "end_score": 309, "events": ["deposit", "lantern_lit", "game_over"] } }

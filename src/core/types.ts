@@ -70,8 +70,10 @@ export interface Lantern {
 export interface Shade {
   id: string;
   pos: Vec3;
-  /** Contract requires at least "stunned"; other names are ours. */
+  /** Contract requires at least "stunned"; ours: "chase" | "stunned". */
   state: string;
+  /** Internal: stun ends at this tick. Not in output. */
+  stunnedUntil: number;
 }
 
 export interface Mote {

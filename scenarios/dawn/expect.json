@@ -1,0 +1,1 @@
+{ "description": "AC-06 hết đêm (1 giây) -> thua dawn ở tick 60", "seed": 1, "ticks": 600, "expect": { "end_state": "lost", "end_ticks": 60, "end_score": 0, "events": ["game_over"] } }
