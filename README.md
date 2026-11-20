@@ -25,27 +25,29 @@ npm start          # mở http://localhost:5173
 | F3 | Hiện/ẩn FPS |
 
 ## Luật chơi
-- **Ba Đêm:** Đêm 1 Đảo Bến (300 s, 5 đèn), Đêm 2 Đảo Cau (330 s, 6 đèn, hai đảo nối bằng cầu tre và hai bục nhảy), Đêm 3 Đảo Chuông (360 s, 7 đèn, ba tầng, dốc, tháp chuông, gió mạnh). Mỗi Đêm Mây có 3 Ngọn Lửa.
-- **Đom đóm:** nhặt tự động trong 1 m (chênh cao ≤ 1.5 m), mang tối đa 10. Mỗi đèn cần **10** đom đóm, nạp nhiều lần được, đèn nhớ tiến độ.
-- **Bóng Mực:** đuổi khi Mây trong 12 m, bỏ đuổi sau 18 m, tốc độ 4 m/s (Đêm 3: 4.5). Chạm: −1 Ngọn Lửa, rơi một nửa số đom đóm đang mang ra quanh Mây (nhặt lại được trong 8 s), bất tử 1.5 s. Không vào được vùng 6 m quanh đèn **đã sáng**.
+- **Ba Đêm:** Đêm 1 Đảo Bến (240 s, 5 đèn), Đêm 2 Đảo Cau (270 s, 6 đèn, hai đảo nối bằng cầu tre và hai bục nhảy), Đêm 3 Đảo Chuông (300 s, 7 đèn, ba tầng, dốc, tháp chuông, gió mạnh). Mỗi Đêm Mây có 3 Ngọn Lửa.
+- **Đom đóm:** nhặt tự động trong 1 m (chênh cao ≤ 1.5 m). Sức chứa là 10 + 2 × số lần thắp thành công, tối đa 20.
+- **Đèn và dầu (Phase 3):** đèn thắp lần đầu cần 10 đom đóm, thắp lại cần 5. Đèn sáng hao 1 dầu/s; châm 10 dầu cho mỗi đom đóm (tối đa 100). Về 0 dầu thì đèn tắt, và phải thắp lại. Đèn dưới 30 dầu nhấp nháy và mất vùng an toàn.
+- **Bóng Mực:** đuổi khi Mây trong 12 m, bỏ đuổi sau 18 m, tốc độ 4 m/s (Đêm 3: 4,5). Bóng lang thang tới đèn sáng dưới 30 dầu gần nhất; trong 2 m thì đứng yên và hút 5 dầu/s. Chạm Mây: −1 Ngọn Lửa, rơi một nửa số đom đóm đang mang, bất tử 1,5 s.
 - **Tỏa Sáng:** bóng trong 5 m (tính 3D) choáng 2 s và bị đẩy lùi 4 m.
 - **Rơi khỏi đảo** (Y < −10): −1 Ngọn Lửa, mất hết đom đóm, chờ 1 giây rồi hồi sinh ở điểm xuất phát (bất tử 1.5 s).
 - **Gió Lạc** (Đêm 2, 3): dải lụa xám xanh, thấy Mây mang ≥ 5 đom đóm trong 15 m thì lao tới cướp 3 đom đóm rồi bỏ chạy; Tỏa Sáng làm nó bỏ chạy hoặc thả đồ lại.
 - **Bùa Gió:** nhặt để chạy 7.2 m/s và lướt không hồi chiêu trong 10 giây; bùa xuất hiện lại sau 45 giây.
 - **Bục nhảy:** đứng lên bục để bị bắn lên và qua đảo/tầng khác (Đêm 2, 3).
 - **Gió mạnh** (Đêm 3): mỗi 30 giây một cơn gió 5 giây đẩy Mây 2 m/s, báo trước 2 giây bằng lá bay.
-- **Thắng/thua:** hết Ngọn Lửa là thua; thắp hết đèn là thắng (kể cả đúng lúc hết giờ); hết giờ mà chưa thắp hết là thua. Thua thì chơi lại Đêm đó. Thắng Đêm 3 thì tới màn Bình Minh.
+- **Thắng/thua (Phase 3):** không còn thắng sớm. Hết lửa là thua ngay. Khi hết giờ (bình minh), thắng nếu còn ít nhất ceil(0,6 × tổng đèn) đèn sáng (Đêm 1: 3/5, Đêm 2: 4/6, Đêm 3: 5/7); ngược lại thua. Thua thì chơi lại Đêm đó.
 
-## Cách tính điểm
+## Cách tính điểm (Phase 3)
 | Sự kiện | Điểm |
 |---|---|
-| Nạp 1 đom đóm vào đèn | +10 |
-| Thắp 1 đèn | +100 |
-| Mỗi Bóng Mực trúng Tỏa Sáng (mỗi con, mỗi lần) | +5 |
-| Khi thắng: mỗi giây còn lại (làm tròn xuống) | +2 |
-| Khi thắng: mỗi Ngọn Lửa còn lại | +50 |
+| Nạp hoặc châm 1 đom đóm vào đèn | +5 |
+| Thắp lần đầu | +100 |
+| Thắp lại | +40 |
+| Bóng Mực trúng Tỏa Sáng | +5 mỗi con; +15 nếu con đó đang hút |
+| Bình minh (chỉ khi thắng): mỗi đèn đang sáng | +50 + dầu còn lại (làm tròn xuống) |
+| Bình minh (chỉ khi thắng): mỗi Ngọn Lửa còn lại | +50 |
 
-Nhặt đom đóm **không** có điểm. Tổng điểm game = tổng điểm các Đêm đã thắng. Các số lấy từ `game.contract.json` → `tuning.score`.
+Không còn thưởng theo thời gian. Tổng điểm game = tổng điểm các Đêm đã thắng. Số lấy từ `game.contract.json` → `tuning.score`.
 
 ## Headless (Test Contract v1.1)
 ```bash
@@ -78,7 +80,10 @@ CI chạy build, test và proof trên Ubuntu và macOS mỗi lần push (`.githu
 | `docs/proof/` | Bằng chứng từng phase |
 | `AGENTS.md`, `CLAUDE.md`, `.claude/` | Harness AI: hướng dẫn agent, skill `run-proof` và `verify-client`, hook Stop chặn khi test đỏ |
 
-## Chưa đạt hoặc chưa kiểm chứng (Phase 2)
+## Quyết định thiết kế và thay đổi
+- Phase 3 đổi luật thắng và mô hình đèn: xem [ADR-001](docs/notes/adr-001-lantern-fuel.md) và [changelog](docs/notes/changelog-phase3.md) (danh sách phá vỡ tương thích).
+
+## Chưa đạt hoặc chưa kiểm chứng (Phase 2–3)
 - Âm thanh chưa được nghe thử (môi trường kiểm tra không có loa); màu pixel chưa đo; chưa chơi tay một ván thật qua cả ba Đêm. Chi tiết trong [bằng chứng Phase 2](docs/proof/phase-2/README.md).
 
 ## Sáng tạo của tôi

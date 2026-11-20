@@ -23,3 +23,9 @@
 - AI sai: Bóng Mực Đêm 3 kẹt vách (phát hiện bằng headless); vài test sai phía test (xem `ai-log.md`).
 - Harness: thêm skill `verify-client`, cập nhật `AGENTS.md` và `run-proof`.
 - Token: ~270k ngữ cảnh; hạn mức tuần đã dùng 92%.
+
+## Phase 3 (TICKET-03)
+- Đạt: mô hình dầu bằng số nguyên, hút dầu, thắng lúc bình minh, sức chứa, điểm mới, contract v1.2, ADR và changelog; 150 test và 33 scenario đạt.
+- Chưa đạt/chưa kiểm: thanh dầu từ xa, mù màu bằng mắt, chơi tay qua ba đêm, câu hỏi P2.
+- AI sai: test Phase 2 mã hóa luật bị thay (đúng là phải thay, nhưng phải ghi lý do); một số kiểm tra trỏ tới tick không có snapshot; vị trí thanh HUD. Đã sửa và ghi trong `ai-log.md`.
+- Bài học: đọc thứ tự tick trước khi viết test về "đèn đầy": hao dầu xảy ra trước tương tác, nên khái niệm "đầy" gần như không xảy ra trong thực tế.

@@ -80,3 +80,22 @@ Các giả định Q1–Q3 và Q10 ảnh hưởng nhiều nhất tới test ẩn
 - A16. Thời gian tính bằng tick nguyên: `round(giây × 60)` cho bất tử, hồi chiêu, choáng.
 - A17. Không có va chạm với cột đèn hay giữa các vật thể: contract đo mọi khoảng cách theo điểm trên XZ, va chạm sẽ làm lệch vị trí mà test mong đợi.
 - A18. `dash` được chấp nhận trong inputs nhưng không có tác dụng.
+
+## Phase 3 (TICKET-03): giả định cho chỗ ticket chưa rõ
+
+Các số và luật đã được ticket quy định thì không ghi lại ở đây. Quyết định kiến trúc nằm trong [ADR-001](adr-001-lantern-fuel.md).
+
+| # | Chỗ chưa rõ | Giả định đang dùng |
+|---|---|---|
+| P1 | Bóng Mực lang thang khi không có đèn yếu | Về **đèn tắt gần nhất** (ticket: "như trước"). Phase 2 thực tế đi tới điểm ngẫu nhiên; đổi sang đèn tắt là thay đổi hành vi, ghi trong changelog |
+| P2 | Đèn đầy dầu "không được chọn" | Thứ tự tick hao dầu trước tương tác nên đèn 100 còn 99.98 và vẫn nhận 1 đom đóm. Giữ đúng thứ tự ticket; hỏi trợ giảng |
+| P3 | Thắp lại trong scenario | `ever_lit` mặc định bằng `lit` (đèn đặt sáng sẵn coi như đã từng sáng) |
+| P4 | Điểm Tỏa Sáng vào Bóng Mực đang drain | +15 **thay** cho +5 (không cộng cả hai) |
+| P5 | Ngưỡng thắng khi tổng đèn không chia hết | `ceil(0.6 × n)` tính bằng `Math.ceil(0.6n − 1e-9)` để tránh sai số số thực |
+| P6 | `fuel_drain` ghi "mỗi 60 tick khi đang hút" | Đếm từ lúc bắt đầu drain, mỗi con một lần; ghi ở tick 61, 121, … |
+| P7 | Shade drain và Mây trong 6 m | Mây vào 6 m thì chuyển `chase` ngay (ticket) dù đang hút; nếu chạm thì bị hit như bình thường |
+| P8 | Shade bị hit khi đang drain | Có thể bị hit (drain không bất tử); hit thì chuyển `recoil` và bỏ drain |
+| P9 | Đèn tắt khi đang bị hút | Bóng Mực đang drain đèn đó chuyển `wander` ở tick kế tiếp (bước 8) |
+| P10 | Thắng/thua tại tick bình minh có hết lửa | `no_flames` thắng thứ tự (ticket: "hết Ngọn Lửa luôn thua no_flames trước") |
+| P11 | Điểm thắng bình minh | `per_lit_dawn` (50) + floor(fuel) cho mỗi đèn sáng; `per_flame_left` (50) mỗi lửa còn lại. Đèn tắt không được tính |
+| P12 | Scenario `drain` không có `target_lantern_id` | Bóng Mực ở trạng thái drain không có đèn là `wander` ở tick đầu |

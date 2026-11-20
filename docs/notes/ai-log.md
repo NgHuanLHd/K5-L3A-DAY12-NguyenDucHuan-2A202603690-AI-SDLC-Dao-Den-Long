@@ -6,7 +6,7 @@
 | Setup | Claude Code (Opus 5.5 / Sonnet 5.5) | ~100k token ngữ cảnh (ước tính) | 1 | Chép spec Phase 1 vào `docs/lab/PRD-0.md` để không phải mở lại lab board |
 | 1 | Claude Code (Opus 5.5 / Sonnet 5.5) | ~200k token ngữ cảnh thêm (ước tính) | 1 | Kiểm tra bằng headless/test thay vì chơi thử nhiều lần; viết toàn bộ luật trong một lượt theo danh sách giả định đã chốt |
 | 2 | Claude Code: Opus 5.5 đọc ticket + lập kế hoạch, Sonnet 5.5 viết mã | ~270k token ngữ cảnh thêm (ước tính; phiên đo ~570k ở cuối Phase 2, hạn mức tuần đã dùng 92%) | 1 | Chép ticket vào repo; kế hoạch có tiêu chí + giả định trước khi code; đổi sang Sonnet cho phần viết mã; kiểm bằng test/headless trước, trình duyệt chỉ để chụp ảnh |
-| 3 | | | | |
+| 3 | Claude Code (Haiku 5.5 đọc ticket, viết mã; Opus 5.5 đã dùng trước đó cho kế hoạch Phase 2) | ~300k token ngữ cảnh thêm (ước tính, chưa đo tổng); tổng ngữ cảnh đã dùng hơn 1M token cửa sổ qua nhiều phiên | 1 | Ghi quyết định vào ADR trước khi viết mã; test luật cũ bị thay được xóa có lý do; scenario sinh bằng script; tránh chạy trình duyệt cho đến khi cần ảnh |
 | 4 | | | | |
 
 **Cách ước tính (trung thực về độ chính xác):**
@@ -34,3 +34,8 @@
 | 2 | Tạo nhiều scenario bằng shell bị lỗi nháy đơn, rồi lỗi dấu backtick khi ghi nhật ký | Bash báo EOF / "command not found" | Dùng script Node với JSON.stringify (không commit) và công cụ Edit cho văn bản có ký tự đặc biệt |
 | 2 | Khung xem trước bị ẩn nên vòng lặp hoạt hình chỉ chạy ~2 khung/giây; đọc trạng thái pause ngay sau phím Esc thấy chưa đổi | So ảnh chụp với trạng thái đọc ngay | Thêm `__ddl.sync()` và `advance()` (chỉ bản dev) và skill `verify-client` nêu rõ giới hạn |
 | 2 | Khi chuyển Đêm, client chỉ xóa danh sách đối tượng chứ không gỡ khỏi cảnh: đom đóm của Đêm trước còn lơ lửng quanh đảo mới | Người dùng hỏi "còn phần các bản đồ đâu" nên tôi chụp bản đồ từ trên cao và thấy chấm lạ ngoài đảo | Sửa `loadNight` (gỡ mesh khỏi cảnh trước khi xóa); kiểm: số đom đóm trong cảnh = trong game sau khi qua 3 Đêm. Chưa có test tự động cho phần hiển thị này |
+| 3 | Test Phase 2 có kỳ vọng "thắng ngay khi thắp đủ" và "điểm nhặt đom đóm": đây là luật bị thay, không phải lỗi mã | Test đỏ đúng chỗ luật đổi; đọc ticket để xác nhận từng luật bị thay | Xóa khối test cũ (ghi lý do trong file), viết test mới theo ticket; ghi vào `changelog-phase3.md` |
+| 3 | Bóng Mực kẹt đuổi ở đúng mép 6 m khi Mây đứng sát đèn: lỗi test chứ không phải luật (khoảng 5.9 là giữa lúc đẩy) | Đọc chuỗi vị trí từng tick (dbg) | Test chỉ đánh giá sau khi đẩy xong (tick 3 trở đi) |
+| 3 | Đèn 100 vẫn nhận 1 đom đóm vì dầu hao trước tương tác, trái với trực giác "đèn đầy" | Test `fuel.test.ts` ghi rõ; đối chiếu thứ tự tick của ticket | Giữ đúng thứ tự ticket; ghi ADR-001 và câu hỏi P2 cho trợ giảng |
+| 3 | Tôi đề xuất thêm `snapshot_every 1` và sửa mong đợi làm tròn: một số kiểm tra ban đầu trỏ tới tick không có snapshot | Lỗi "no snapshot at tick" của proof | Thêm `snapshot_every` vào các scenario cần đọc từng tick (cấu hình kiểm tra, không đổi luật) |
+| 3 | Thanh dầu trên đèn: lần đầu đặt sai vị trí (trôi khỏi đèn) và thanh HUD số đom đóm đè lên góc trên trái | Ảnh trình duyệt | Sửa vị trí thanh; đặt `#hudCapacity` trên thanh đom đóm |

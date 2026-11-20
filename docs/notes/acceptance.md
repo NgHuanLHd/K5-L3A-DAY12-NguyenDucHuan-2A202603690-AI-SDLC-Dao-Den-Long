@@ -45,3 +45,26 @@ Kế hoạch đầy đủ: [phase-2-plan.md](phase-2-plan.md). Bằng chứng: [
 | AC-215 | Bản đồ chuẩn Phần 2 | 3 bản đồ khớp ticket | `maps.test.ts`, `movement.test.ts` | Đạt |
 | AC-216 | Contract v1.1 | Trường tuning/snapshot/scenario/input/event đúng v1.1; trạng thái Bóng Mực đúng tên | `headless.test.ts` | Đạt |
 | AC-217 | Regression Phase 1 | Các hành vi Phase 1 còn đúng với số chuẩn (có đổi luật theo ticket) | `changes.md`; mọi scenario Phase 1 được cập nhật | Đạt, kèm các thay đổi đã ghi |
+
+## Phase 3 (TICKET-03, Contract v1.2)
+
+ADR: [adr-001-lantern-fuel.md](adr-001-lantern-fuel.md). Changelog phá vỡ tương thích: [changelog-phase3.md](changelog-phase3.md). Giả định: [assumptions.md](assumptions.md) (mục Phase 3).
+
+| ID | Tiêu chí | Kiểm bằng | Trạng thái |
+|---|---|---|---|
+| AC-301 | Đèn sáng hao 1 dầu/s; về 0 thì tắt, `deposited` = 0, `lantern_out`, `ever_lit` giữ | `fuel.test.ts`, `p3-lantern-out` | Đạt |
+| AC-302 | Châm dầu: min(đang mang, ceil((100−fuel)/10)) đom đóm; đèn đầy không được chọn (xem P2) | `fuel.test.ts` Refuel, `p3-refuel` | Đạt có ghi chú P2 |
+| AC-303 | Thắp lại chỉ cần 5 đom đóm, +40; thắp lần đầu 10 đom đóm, +100; `relight` trong sự kiện | `fuel.test.ts`, `p3-relight` | Đạt |
+| AC-304 | Bóng Mực wander tới đèn sáng dưới 30 gần nhất; ≤ 2 m thì `drain`, hút 5/s, đèn hao thêm 1/s | `fuel.test.ts` Drain, `p3-drain` | Đạt |
+| AC-305 | Rời `drain` theo đúng các điều kiện ticket (chase ≤ 6 m, stunned, wander) | `fuel.test.ts` | Đạt |
+| AC-306 | Đèn dưới 30 không còn vùng an toàn; đúng 30 tại tick 0 vẫn có, nhưng 1 tick hao sẽ xuống 29.98 (xem ADR) | `fuel.test.ts` Safe zone | Đạt có ghi chú |
+| AC-307 | Châm đèn lên ≥ 30 khi có Bóng Mực trong vùng: đẩy ra mép ≤ 30 tick, không hit | `fuel.test.ts` Refuel | Đạt |
+| AC-308 | Không thắng sớm; thắng lúc bình minh nếu sống và đủ `ceil(0.6 × n)` đèn: 3/5, 4/6, 5/7 | `fuel.test.ts` Dawn, `p3-dawn-win`, `p3-night2-dawn` | Đạt |
+| AC-309 | Thua: hết lửa ngay (cả tick cuối); hết giờ dưới ngưỡng thì `dawn` | `fuel.test.ts`, `p3-no-flames`, `p3-dawn-lose` | Đạt |
+| AC-310 | Sức chứa 10 + 2 × thắp thành công, tối đa 20, đặt lại mỗi Đêm; đèn đặt sẵn không tính | `fuel.test.ts` Capacity, `p3-capacity` | Đạt |
+| AC-311 | Điểm: +5 mỗi đom đóm nạp, +100/+40 thắp, +5 (+15 nếu drain) mỗi Bóng Mực bị Tỏa Sáng, bình minh +50+fuel và +50/lửa; không thưởng thời gian | `fuel.test.ts`, `p3-drain-stun`, `p3-dawn-win` | Đạt |
+| AC-312 | Thời lượng đêm 240 / 270 / 300 s | `fuel.test.ts`, `night2-start`, `night3-start`, `pause` | Đạt |
+| AC-313 | Bảng màu dễ phân biệt: viền/mắt Bóng Mực #00B3FF, cảnh báo trắng có ⚠, đèn tắt xẹp 20% và vết rách, đèn sắp hết dầu nhấp nháy; được lưu | `client-pure.test.ts` (dữ liệu cài đặt); ảnh | Đạt cho cài đặt và đèn; **ảnh chỉ kiểm HUD, chưa kiểm mắt người** |
+| AC-314 | Thanh dầu trên đèn sáng, nhấp nháy 1 Hz dưới 30; HUD đang mang/sức chứa | ảnh `ui/` | Đạt một phần: HUD đúng; thanh dầu khó thấy từ xa |
+| AC-315 | Snapshot và scenario theo contract v1.2 | `headless.test.ts`, `p3-*` | Đạt |
+| AC-316 | Test cũ bị luật mới làm sai được cập nhật hoặc xóa có lý do | [changelog-phase3.md](changelog-phase3.md), `items.test.ts` (ghi chú) | Đạt |
