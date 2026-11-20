@@ -23,10 +23,12 @@ function readText(path: string, what: string): string {
 /** Pure simulation: returns JSONL lines. */
 export function simulate(
   contract: Contract,
-  opts: { seed: number; ticks: number; snapshotEvery: number; scenario?: ReturnType<typeof parseScenario>; frames?: Frame[] },
+  opts: { seed: number; night?: number; ticks: number; snapshotEvery: number; scenario?: ReturnType<typeof parseScenario>; frames?: Frame[] },
 ): string[] {
-  const w = createWorld(contract.tuning, opts.seed, opts.scenario);
+  const night = opts.night ?? 1;
+  const w = createWorld(contract.tuning, opts.seed, night, opts.scenario);
   const lines: string[] = [JSON.stringify(snapshot(w))];
+  lines.push(JSON.stringify({ type: "event", tick: 0, name: "night_start", data: { night } }));
   const frames = opts.frames ?? [];
   let fi = 0;
   const cur: InputState = { ...DEFAULT_INPUT, move: [0, 0] };
@@ -36,11 +38,11 @@ export function simulate(
       const f = frames[fi++]!;
       if (f.move) cur.move = [f.move[0], f.move[1]];
       if (f.cam_yaw_deg !== undefined) cur.cam_yaw_deg = f.cam_yaw_deg;
-      for (const key of ["jump", "interact", "pulse", "dash"] as const) if (f[key] !== undefined) cur[key] = f[key]!;
+      for (const key of ["jump", "interact", "pulse", "dash", "pause"] as const) if (f[key] !== undefined) cur[key] = f[key]!;
     }
     for (const ev of step(w, cur)) lines.push(JSON.stringify(ev));
     if (w.tick % opts.snapshotEvery === 0) lines.push(JSON.stringify(snapshot(w)));
-    if (w.state !== "playing") break;
+    if (w.state === "won" || w.state === "lost") break;
   }
   lines.push(JSON.stringify({ type: "end", ticks: w.tick, state: w.state, score: w.score }));
   return lines;
@@ -54,6 +56,7 @@ export function runHeadless(argv: string[], log: (msg: string) => void = (m) => 
     const frames = args.inputs ? parseInputs(readText(args.inputs, "inputs")) : undefined;
     const lines = simulate(loadContract(), {
       seed: args.seed,
+      night: args.night,
       ticks: args.ticks,
       snapshotEvery: args.snapshotEvery,
       scenario,

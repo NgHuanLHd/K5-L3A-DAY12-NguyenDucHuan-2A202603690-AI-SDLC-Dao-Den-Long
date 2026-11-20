@@ -1,4 +1,4 @@
-import type { Scenario, Vec3 } from "../core/types.js";
+import { DRIFTER_STATES, SHADE_STATES, type DrifterState, type Scenario, type ShadeState, type Vec3 } from "../core/types.js";
 
 /** Bad inputs/scenario file -> exit code 2 (Test Contract B). */
 export class FormatError extends Error {}
@@ -13,6 +13,7 @@ export interface Frame {
   interact?: boolean;
   pulse?: boolean;
   dash?: boolean;
+  pause?: boolean;
 }
 
 export interface CliArgs {
@@ -46,7 +47,7 @@ export function parseArgs(argv: string[]): CliArgs {
   const known = new Set(["seed", "night", "ticks", "out", "scenario", "inputs", "snapshot-every"]);
   for (const k of m.keys()) if (!known.has(k)) throw new UsageError(`unknown option --${k}`);
   const night = intArg("night", m.get("night"), 1);
-  if (night !== 1) throw new UsageError(`only --night 1 is supported`);
+  if (night > 3) throw new UsageError(`--night must be 1, 2 or 3`);
   const out = m.get("out");
   if (!out) throw new UsageError("--out is required");
   return {
@@ -60,10 +61,10 @@ export function parseArgs(argv: string[]): CliArgs {
   };
 }
 
-const isObj = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 const isVec3 = (v: unknown): v is Vec3 => Array.isArray(v) && v.length === 3 && v.every(isNum);
+const isNat = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0;
 
 function parseJson(text: string, what: string): unknown {
   try {
@@ -80,8 +81,8 @@ export function parseInputs(text: string): Frame[] {
   return j.frames.map((f, i) => {
     const at = `inputs.frames[${i}]`;
     if (!isObj(f)) throw new FormatError(`${at}: expected object`);
-    if (!Number.isInteger(f.tick) || (f.tick as number) < 0) throw new FormatError(`${at}.tick: non-negative integer required`);
-    const tick = f.tick as number;
+    if (!isNat(f.tick)) throw new FormatError(`${at}.tick: non-negative integer required`);
+    const tick = f.tick;
     if (tick <= last) throw new FormatError(`${at}.tick: ticks must strictly increase`);
     last = tick;
     const out: Frame = { tick };
@@ -94,7 +95,7 @@ export function parseInputs(text: string): Frame[] {
       if (!isNum(f.cam_yaw_deg)) throw new FormatError(`${at}.cam_yaw_deg: number required`);
       out.cam_yaw_deg = f.cam_yaw_deg;
     }
-    for (const k of ["jump", "interact", "pulse", "dash"] as const) {
+    for (const k of ["jump", "interact", "pulse", "dash", "pause"] as const) {
       if (f[k] !== undefined) {
         if (typeof f[k] !== "boolean") throw new FormatError(`${at}.${k}: boolean required`);
         out[k] = f[k] as boolean;
@@ -108,65 +109,143 @@ export function parseScenario(text: string): Scenario {
   const j = parseJson(text, "scenario");
   if (!isObj(j)) throw new FormatError("scenario: expected object");
   const s: Scenario = {};
+  const need = (cond: boolean, msg: string) => {
+    if (!cond) throw new FormatError(`scenario.${msg}`);
+  };
+
   if (j.player !== undefined) {
-    if (!isObj(j.player)) throw new FormatError("scenario.player: object required");
-    const p = j.player;
+    need(isObj(j.player), "player: object required");
+    const p = j.player as Record<string, unknown>;
     s.player = {};
     if (p.pos !== undefined) {
-      if (!isVec3(p.pos)) throw new FormatError("scenario.player.pos: [x,y,z] required");
-      s.player.pos = p.pos;
+      need(isVec3(p.pos), "player.pos: [x,y,z] required");
+      s.player.pos = p.pos as Vec3;
     }
-    for (const k of ["carried", "flames"] as const) {
+    for (const k of ["carried", "flames", "invuln_ticks", "dash_cd_ticks", "pulse_cd_ticks", "charm_ticks"] as const) {
       if (p[k] !== undefined) {
-        if (!Number.isInteger(p[k]) || (p[k] as number) < 0) throw new FormatError(`scenario.player.${k}: non-negative integer required`);
+        need(isNat(p[k]), `player.${k}: non-negative integer required`);
         s.player[k] = p[k] as number;
       }
     }
   }
-  for (const k of ["random_motes", "random_shades"] as const) {
+  for (const k of ["random_motes", "random_shades", "random_drifters", "wind_enabled"] as const) {
     if (j[k] !== undefined) {
-      if (typeof j[k] !== "boolean") throw new FormatError(`scenario.${k}: boolean required`);
+      need(typeof j[k] === "boolean", `${k}: boolean required`);
       s[k] = j[k] as boolean;
     }
   }
   if (j.motes !== undefined) {
-    if (!Array.isArray(j.motes) || !j.motes.every(isVec3)) throw new FormatError("scenario.motes: array of [x,y,z] required");
-    s.motes = j.motes as Vec3[];
+    need(Array.isArray(j.motes), "motes: array required");
+    s.motes = (j.motes as unknown[]).map((m, i) => {
+      if (isVec3(m)) return m;
+      need(isObj(m) && isVec3(m.pos), `motes[${i}]: [x,y,z] or { pos } required`);
+      const o = m as Record<string, unknown>;
+      const out: { pos: Vec3; kind?: "random" | "dropped"; ttl_s?: number | null } = { pos: o.pos as Vec3 };
+      if (o.kind !== undefined) {
+        need(o.kind === "random" || o.kind === "dropped", `motes[${i}].kind: random|dropped`);
+        out.kind = o.kind as "random" | "dropped";
+      }
+      if (o.ttl_s !== undefined && o.ttl_s !== null) {
+        need(isNum(o.ttl_s) && o.ttl_s >= 0, `motes[${i}].ttl_s: number >= 0`);
+        out.ttl_s = o.ttl_s as number;
+      }
+      return out;
+    });
   }
   if (j.shades !== undefined) {
-    if (!Array.isArray(j.shades)) throw new FormatError("scenario.shades: array required");
-    s.shades = j.shades.map((sh, i) => {
-      if (!isObj(sh) || !isVec3(sh.pos)) throw new FormatError(`scenario.shades[${i}].pos: [x,y,z] required`);
-      if (sh.id !== undefined && typeof sh.id !== "string") throw new FormatError(`scenario.shades[${i}].id: string required`);
-      return { pos: sh.pos, ...(sh.id !== undefined ? { id: sh.id as string } : {}) };
+    need(Array.isArray(j.shades), "shades: array required");
+    s.shades = (j.shades as unknown[]).map((sh, i) => {
+      need(isObj(sh) && isVec3(sh.pos), `shades[${i}].pos: [x,y,z] required`);
+      const o = sh as Record<string, unknown>;
+      const out: NonNullable<Scenario["shades"]>[number] = { pos: o.pos as Vec3 };
+      if (o.id !== undefined) {
+        need(typeof o.id === "string", `shades[${i}].id: string required`);
+        out.id = o.id as string;
+      }
+      if (o.state !== undefined) {
+        need(SHADE_STATES.includes(o.state as ShadeState), `shades[${i}].state: ${SHADE_STATES.join("|")}`);
+        out.state = o.state as ShadeState;
+      }
+      if (o.state_ticks_left !== undefined) {
+        need(isNat(o.state_ticks_left), `shades[${i}].state_ticks_left: non-negative integer required`);
+        out.state_ticks_left = o.state_ticks_left as number;
+      }
+      return out;
     });
     const ids = s.shades.flatMap((x) => (x.id ? [x.id] : []));
-    if (new Set(ids).size !== ids.length) throw new FormatError("scenario.shades: duplicate id");
+    need(new Set(ids).size === ids.length, "shades: duplicate id");
+  }
+  if (j.drifters !== undefined) {
+    need(Array.isArray(j.drifters), "drifters: array required");
+    s.drifters = (j.drifters as unknown[]).map((d, i) => {
+      need(isObj(d) && isVec3(d.pos), `drifters[${i}].pos: [x,y,z] required`);
+      const o = d as Record<string, unknown>;
+      const out: NonNullable<Scenario["drifters"]>[number] = { pos: o.pos as Vec3 };
+      if (o.id !== undefined) {
+        need(typeof o.id === "string", `drifters[${i}].id: string required`);
+        out.id = o.id as string;
+      }
+      if (o.state !== undefined) {
+        need(DRIFTER_STATES.includes(o.state as DrifterState), `drifters[${i}].state: ${DRIFTER_STATES.join("|")}`);
+        out.state = o.state as DrifterState;
+      }
+      for (const k of ["stolen", "state_ticks_left"] as const) {
+        if (o[k] !== undefined) {
+          need(isNat(o[k]), `drifters[${i}].${k}: non-negative integer required`);
+          out[k] = o[k] as number;
+        }
+      }
+      return out;
+    });
+    const ids = s.drifters.flatMap((x) => (x.id ? [x.id] : []));
+    need(new Set(ids).size === ids.length, "drifters: duplicate id");
+  }
+  if (j.charms !== undefined) {
+    need(Array.isArray(j.charms), "charms: array required");
+    s.charms = (j.charms as unknown[]).map((c, i) => {
+      need(isObj(c) && typeof c.id === "string", `charms[${i}].id: string required`);
+      const o = c as Record<string, unknown>;
+      const out: NonNullable<Scenario["charms"]>[number] = { id: o.id as string };
+      if (o.pos !== undefined) {
+        need(isVec3(o.pos), `charms[${i}].pos: [x,y,z] required`);
+        out.pos = o.pos as Vec3;
+      }
+      if (o.available !== undefined) {
+        need(typeof o.available === "boolean", `charms[${i}].available: boolean required`);
+        out.available = o.available as boolean;
+      }
+      if (o.respawn_ticks !== undefined) {
+        need(isNat(o.respawn_ticks), `charms[${i}].respawn_ticks: non-negative integer required`);
+        out.respawn_ticks = o.respawn_ticks as number;
+      }
+      return out;
+    });
   }
   if (j.lanterns !== undefined) {
-    if (!Array.isArray(j.lanterns)) throw new FormatError("scenario.lanterns: array required");
-    s.lanterns = j.lanterns.map((l, i) => {
-      const at = `scenario.lanterns[${i}]`;
-      if (!isObj(l) || typeof l.id !== "string") throw new FormatError(`${at}.id: string required`);
-      const out: NonNullable<Scenario["lanterns"]>[number] = { id: l.id };
-      if (l.pos !== undefined) {
-        if (!isVec3(l.pos)) throw new FormatError(`${at}.pos: [x,y,z] required`);
-        out.pos = l.pos;
+    need(Array.isArray(j.lanterns), "lanterns: array required");
+    s.lanterns = (j.lanterns as unknown[]).map((l, i) => {
+      const at = `lanterns[${i}]`;
+      need(isObj(l) && typeof l.id === "string", `${at}.id: string required`);
+      const o = l as Record<string, unknown>;
+      const out: NonNullable<Scenario["lanterns"]>[number] = { id: o.id as string };
+      if (o.pos !== undefined) {
+        need(isVec3(o.pos), `${at}.pos: [x,y,z] required`);
+        out.pos = o.pos as Vec3;
       }
-      if (l.lit !== undefined) {
-        if (typeof l.lit !== "boolean") throw new FormatError(`${at}.lit: boolean required`);
-        out.lit = l.lit;
+      if (o.lit !== undefined) {
+        need(typeof o.lit === "boolean", `${at}.lit: boolean required`);
+        out.lit = o.lit as boolean;
       }
-      if (l.deposited !== undefined) {
-        if (!Number.isInteger(l.deposited) || (l.deposited as number) < 0) throw new FormatError(`${at}.deposited: non-negative integer required`);
-        out.deposited = l.deposited as number;
+      if (o.deposited !== undefined) {
+        need(isNat(o.deposited), `${at}.deposited: non-negative integer required`);
+        out.deposited = o.deposited as number;
       }
       return out;
     });
   }
   if (j.time_left_s !== undefined) {
-    if (!isNum(j.time_left_s) || j.time_left_s <= 0) throw new FormatError("scenario.time_left_s: positive number required");
-    s.time_left_s = j.time_left_s;
+    need(isNum(j.time_left_s) && j.time_left_s > 0, "time_left_s: positive number required");
+    s.time_left_s = j.time_left_s as number;
   }
   return s;
 }
